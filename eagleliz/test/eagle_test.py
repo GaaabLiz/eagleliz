@@ -8,9 +8,6 @@ import sys
 import os
 
 from dotenv import load_dotenv
-from loguru import logger
-from pylizlib.os import pathutils
-
 from eagleliz.eagleliz import Eagleliz
 from eagleliz.types import PathItem
 
