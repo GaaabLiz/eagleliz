@@ -1,6 +1,5 @@
-from typing import Any
 from dataclasses import dataclass
-import json
+from typing import Any, Optional, List, Dict
 
 
 @dataclass
@@ -38,3 +37,14 @@ class EagleDto:
         _status = str(obj.get("status"))
         _data2 = obj.get("data") if "data" in obj else None
         return EagleDto(_status, None, _data2)
+
+
+@dataclass
+class PathItem:
+    name: str
+    path: str
+    website: Optional[str] = None
+    annotation: Optional[str] = None
+    tags: Optional[List[str]] = None
+    modificationTime: Optional[int] = None
+    headers: Optional[Dict[str, str]] = None
