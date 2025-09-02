@@ -1,4 +1,6 @@
 import json
+import os
+from datetime import datetime
 from pathlib import Path
 
 import requests
@@ -41,9 +43,59 @@ def get_tags_from_metadata(metadata: Path) -> list[str]:
     return [str(tag) for tag in tags_list]
 
 
-def upload_to_immich(media: Path, immich_url: str, tags: list[str]) -> bool:
-    API_KEY = 'YOUR_API_KEY'                # replace with a valid api key
-    BASE_URL = 'http://127.0.0.1:2283/api'  # replace as needed
+
+def update_immich_asset(asset_id: str, description: str):
+    API_KEY = 'qXsLbkKJqnkuDexLRyOe71SZsnB6ivBejRmaQNTnss'                # replace with a valid api key
+    BASE_URL = f'http://truenas.local:30041/api/assets/{asset_id}'
+
+    typer.echo(f"Updating Immich asset {asset_id} with description '{description}'")
+
+    payload = json.dumps({
+        "description": description,
+    })
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'x-api-key': API_KEY
+    }
+
+    response = requests.request("PUT", BASE_URL, headers=headers, data=payload)
+    print(response.text)
+
+
+
+
+def upload_to_immich(media: Path, immich_url: str, tags: list[str]) -> tuple[bool, str | None]:
+    API_KEY = 'qXsLbkKJqnkuDexLRyOe71SZsnB6ivBejRmaQNTnss'                # replace with a valid api key
+    BASE_URL = 'http://truenas.local:30041/api'  # replace as needed
+
+    stats = os.stat(media)
+
+    headers = {
+        'Accept': 'application/json',
+        'x-api-key': API_KEY
+    }
+
+    data = {
+        'deviceAssetId': f'{media}-{stats.st_mtime}',
+        'deviceId': 'python',
+        'fileCreatedAt': datetime.fromtimestamp(stats.st_mtime),
+        'fileModifiedAt': datetime.fromtimestamp(stats.st_mtime),
+        'isFavorite': 'false',
+    }
+
+    files = {
+        'assetData': open(media, 'rb')
+    }
+
+    response = requests.post(
+        f'{BASE_URL}/assets', headers=headers, data=data, files=files)
+
+    print(response.json())
+
+    return response.status_code == 200, response.json().get('id', None)
+
 
 
 def handle_media(media_list: list[Path], metadata: Path | None, immich_url: str):
@@ -63,6 +115,8 @@ def handle_media(media_list: list[Path], metadata: Path | None, immich_url: str)
 
     # Upload to Immich
     typer.echo(f"Uploading {media.name} to Immich...")
+    success, asset_id = upload_to_immich(media, immich_url, tag_list)
+    update_immich_asset(asset_id, "Uploaded from Eagle")
 
 
 def execSend2Immich(params: Send2ImmichParams):
