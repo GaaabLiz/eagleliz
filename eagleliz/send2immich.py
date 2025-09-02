@@ -9,38 +9,13 @@ from pydantic import BaseModel, AnyUrl, ValidationError
 
 
 
-class Send2ImmichParams(BaseModel):
-    eagle_url: AnyUrl
-    immich_url: AnyUrl
-    eagle_path: Path
 
 
-def check_endpoint(url: str, name: str) -> bool:
-    """Controlla se un endpoint risponde correttamente con HTTP 200."""
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            typer.echo(f"✅ {name} ({url}) è raggiungibile.")
-            return True
-        else:
-            typer.echo(f"⚠️  {name} ({url}) ha risposto con codice {response.status_code}.")
-            return False
-    except requests.RequestException as e:
-        typer.echo(f"❌ Errore nel contattare {name} ({url}): {e}")
-        return False
 
 
-def get_tags_from_metadata(metadata: Path) -> list[str]:
-    # Apri e leggi il contenuto del file JSON
-    with metadata.open('r', encoding='utf-8') as file:
-        data = json.load(file)
-    # Estrai la lista di tags
-    tags_list = data.get('tags', [])
-    # Controlla che sia una lista e ritorna la lista di stringhe
-    if not isinstance(tags_list, list):
-        print("Warning: 'tags' is not a list in metadata.")
-        return []
-    return [str(tag) for tag in tags_list]
+
+
+
 
 
 
@@ -119,7 +94,7 @@ def handle_media(media_list: list[Path], metadata: Path | None, immich_url: str)
     update_immich_asset(asset_id, "Uploaded from Eagle")
 
 
-def execSend2Immich(params: Send2ImmichParams):
+def execSend2Immich(params: str):
 
     # Controllo connessione Eagle e Immich
     typer.echo("Checking endpoints...")

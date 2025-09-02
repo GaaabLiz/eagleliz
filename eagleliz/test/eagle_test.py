@@ -3,13 +3,11 @@
 
 import unittest
 
-
-import sys
 import os
 
 from dotenv import load_dotenv
-from eagleliz.eagleliz import Eagleliz
-from eagleliz.types import PathItem
+from eagleliz.api.eagleliz import Eagleliz
+from eagleliz.api.types import PathItem
 
 
 class TestVideo(unittest.TestCase):
