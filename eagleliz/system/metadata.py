@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -39,7 +39,7 @@ class Metadata(BaseModel):
     modificationTime: int
     height: int
     width: int
-    noThumbnail: bool
+    noThumbnail: Optional[bool] = False
     lastModified: int
     palettes: List[Palette]
     deletedTime: int

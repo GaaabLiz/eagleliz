@@ -1,13 +1,26 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
+from urllib.parse import urlparse
 
 import rich
 import typer
+from pylizlib.data import regutils
+from pylizlib.network.netutils import is_endpoint_reachable
 
+from eagleliz.integration.immich import upload_asset_to_immich, update_immich_asset
 from eagleliz.system.metadata import get_tags_from_metadata, Metadata
 
 app = typer.Typer(help="Eagle.cool utilities.")
+
+
+def validate_url(ctx: typer.Context, param: typer.CallbackParam, value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return value
+    result = urlparse(value)
+    if not (result.scheme and result.netloc):
+        raise typer.BadParameter(f"L'URL '{value}' non è valido.")
+    return value
 
 
 
@@ -34,8 +47,8 @@ def send2Immich(
     rich.print("\n")
 
     # Checking immich URL
-    ok_immich = check_endpoint(str(params.immich_url))
-    ok_eagle = check_endpoint(str(params.eagle_url))
+    ok_immich = is_endpoint_reachable(immich_url)
+    ok_eagle = is_endpoint_reachable(eagle_url)
     if not ok_immich:
         rich.print("[red]Error:[/red] Immich URL is not reachable.")
         raise typer.Exit(code=1)
@@ -56,7 +69,7 @@ def send2Immich(
     for folder in path_images.iterdir():
         if not folder.is_dir():
             continue
-        rich.print(f"Checking folder[magenta]: {folder} + [/magenta]")
+        rich.print(f"Checking folder[magenta]: {folder}  [/magenta]")
 
         # Scanning folder content
         media_files = []
@@ -106,7 +119,15 @@ def send2Immich(
             continue
 
         # Upload to Immich
-        rich.print(f"Uploading {media.name} to Immich...")
+        success, asset_id = upload_asset_to_immich(immich_api, immich_url, media)
+        if success:
+            # Update description
+            update_immich_asset(immich_api, immich_url, asset_id, media_obj.annotation)
+        rich.print("Finished processing this item.\n")
+        if pause_on_each:
+            rich.print("Press Enter to continue to the next item...")
+            input()
+    rich.print("[green]All done![/green]")
 
 
 if __name__ == "__main__":
