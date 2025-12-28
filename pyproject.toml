@@ -1,0 +1,31 @@
+[project]
+name = "eagleliz"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "annotated-types==0.7.0",
+    "certifi==2025.1.31",
+    "charset-normalizer==3.4.1",
+    "ffmpeg-python==0.2.0",
+    "future==1.0.0",
+    "gitdb==4.0.12",
+    "gitpython==3.1.44",
+    "idna==3.10",
+    "loguru==0.7.3",
+    "numpy==2.2.2",
+    "opencv-python==4.11.0.86",
+    "pillow==11.1.0",
+    "pydantic==2.10.6",
+    "pydantic-core==2.27.2",
+    "pylizlib==0.1.25",
+    "python-dotenv==1.0.1",
+    "requests==2.32.3",
+    "rich>=14.2.0",
+    "sd-parsers==0.5",
+    "setuptools==75.8.0",
+    "smmap==5.0.2",
+    "typer>=0.21.0",
+    "typing-extensions==4.12.2",
+    "urllib3==2.3.0",
+]
