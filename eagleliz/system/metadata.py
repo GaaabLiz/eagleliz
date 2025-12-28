@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import List, Optional
+from xml.sax.saxutils import escape
 
 from pydantic import BaseModel
 
@@ -47,3 +48,34 @@ class Metadata(BaseModel):
     @classmethod
     def from_json(cls,  dict) -> "Metadata":
         return cls(**dict)
+
+    def to_xmp(self) -> str:
+        lines = [
+            '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.6.0">',
+            ' <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">',
+            '  <rdf:Description rdf:about=""',
+            '    xmlns:dc="http://purl.org/dc/elements/1.1/">'
+        ]
+
+        if self.annotation:
+            safe_desc = escape(self.annotation)
+            lines.append('   <dc:description>')
+            lines.append('    <rdf:Alt>')
+            lines.append(f'     <rdf:li xml:lang="x-default">{safe_desc}</rdf:li>')
+            lines.append('    </rdf:Alt>')
+            lines.append('   </dc:description>')
+
+        if self.tags:
+            lines.append('   <dc:subject>')
+            lines.append('    <rdf:Bag>')
+            for tag in self.tags:
+                safe_tag = escape(tag)
+                lines.append(f'     <rdf:li>{safe_tag}</rdf:li>')
+            lines.append('    </rdf:Bag>')
+            lines.append('   </dc:subject>')
+
+        lines.append('  </rdf:Description>')
+        lines.append(' </rdf:RDF>')
+        lines.append('</x:xmpmeta>')
+
+        return "\n".join(lines)
