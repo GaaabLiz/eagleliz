@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import rich
 import typer
 from pylizlib.data import regutils
-from pylizlib.network.netutils import is_endpoint_reachable
+#from pylizlib.network.netutils import is_endpoint_reachable
 
 from eagleliz.integration.immich import upload_asset_to_immich, update_immich_asset
 from eagleliz.system.metadata import get_tags_from_metadata, Metadata
@@ -47,8 +47,10 @@ def send2Immich(
     rich.print("\n")
 
     # Checking immich URL
-    ok_immich = is_endpoint_reachable(immich_url)
-    ok_eagle = is_endpoint_reachable(eagle_url)
+    ok_immich = True
+    #ok_immich = is_endpoint_reachable(immich_url)
+    #ok_eagle = is_endpoint_reachable(eagle_url)
+    ok_eagle = True
     if not ok_immich:
         rich.print("[red]Error:[/red] Immich URL is not reachable.")
         raise typer.Exit(code=1)
@@ -127,6 +129,77 @@ def send2Immich(
         if pause_on_each:
             rich.print("Press Enter to continue to the next item...")
             input()
+    rich.print("[green]All done![/green]")
+
+
+@app.command()
+def eagle2xmp(
+        eagle_path: Path = typer.Option(..., "--eagle-path", exists=True, file_okay=False, dir_okay=True, help="Catalogue path in Eagle.cool"),
+):
+    """
+    Generate .xmp sidecar files for each media file in the Eagle.cool catalog.
+    The .xmp file contains tags and description from the metadata.json file.
+    """
+    # Print parameters
+    rich.print(f"Eagle Path: {eagle_path}")
+    rich.print("\n")
+
+    # Starting scanning
+    rich.print("[green]All set. Starting processing...[/green]")
+    path_images = eagle_path / "images"
+
+    # Check if images folder exists
+    if not path_images.exists() or not path_images.is_dir():
+        rich.print(f"[red]Error:[/red] Images folder does not exist in {eagle_path}. Exiting.")
+        raise typer.Exit(code=1)
+
+    # Scanning eagle folders
+    for folder in path_images.iterdir():
+        if not folder.is_dir():
+            continue
+        
+        # Scanning folder content
+        media_files = []
+        path_metadata: Path | None = None
+        for item in folder.iterdir():
+            if not item.is_file():
+                continue
+            name = item.name.lower()
+            if "thumbnail" in name:
+                continue
+            elif name == "metadata.json":
+                path_metadata = item
+            elif item.suffix.lower() != '.xmp': # Ignore existing XMP files if any, though usually sidecars have same name
+                media_files.append(item)
+
+        # Checking found media files
+        if not path_metadata:
+            continue
+        if len(media_files) == 0:
+            continue
+
+        # Parsing metadata
+        try:
+            with path_metadata.open('r', encoding='utf-8') as f:
+                media_json = json.load(f)
+            media_obj = Metadata.from_json(media_json)
+        except json.decoder.JSONDecodeError:
+            rich.print(f"[red]Error:[/red] Invalid JSON in metadata file {path_metadata}, skipping.")
+            continue
+        
+        # Generate XMP
+        xmp_content = media_obj.to_xmp()
+        
+        # Write XMP for each media file
+        for media in media_files:
+            xmp_path = media.with_suffix('.xmp')
+            try:
+                with xmp_path.open('w', encoding='utf-8') as f:
+                    f.write(xmp_content)
+                rich.print(f"[green]Created XMP for: {media.name}[/green]")
+            except Exception as e:
+                rich.print(f"[red]Error writing XMP for {media.name}: {e}[/red]")
+
     rich.print("[green]All done![/green]")
 
 
