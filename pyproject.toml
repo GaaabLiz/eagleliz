@@ -29,3 +29,6 @@ dependencies = [
     "typing-extensions==4.12.2",
     "urllib3==2.3.0",
 ]
+
+[project.scripts]
+eagleliz = "eagleliz.cli:app"
