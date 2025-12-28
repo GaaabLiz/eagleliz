@@ -1,7 +1,12 @@
 import json
+import sys
 from pathlib import Path
 from typing import List, Optional
 from urllib.parse import urlparse
+
+# Add project root to sys.path to allow running directly
+if __name__ == "__main__":
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import rich
 import typer

@@ -26,24 +26,24 @@ class Palette(BaseModel):
 
 
 class Metadata(BaseModel):
-    id: str
-    name: str
-    size: int
-    btime: int
-    mtime: int
-    ext: str
-    tags: List[str]
-    folders: List[str]
-    isDeleted: bool
-    url: str
-    annotation: str
-    modificationTime: int
-    height: int
-    width: int
+    id: Optional[str] = None
+    name: Optional[str] = None
+    size: Optional[int] = None
+    btime: Optional[int] = None
+    mtime: Optional[int] = None
+    ext: Optional[str] = None
+    tags: List[str] = []
+    folders: List[str] = []
+    isDeleted: bool = False
+    url: Optional[str] = None
+    annotation: Optional[str] = None
+    modificationTime: Optional[int] = None
+    height: Optional[int] = None
+    width: Optional[int] = None
     noThumbnail: Optional[bool] = False
-    lastModified: int
-    palettes: List[Palette]
-    deletedTime: int
+    lastModified: Optional[int] = None
+    palettes: List[Palette] = []
+    deletedTime: Optional[int] = None
 
     @classmethod
     def from_json(cls,  dict) -> "Metadata":
@@ -51,10 +51,12 @@ class Metadata(BaseModel):
 
     def to_xmp(self) -> str:
         lines = [
-            '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.6.0">',
+            "<?xpacket begin='﻿' id='W5M0MpCehiHzreSzNTczkc9d'?>",
+            '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="EagleLiz">',
             ' <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">',
             '  <rdf:Description rdf:about=""',
-            '    xmlns:dc="http://purl.org/dc/elements/1.1/">'
+            '    xmlns:dc="http://purl.org/dc/elements/1.1/"',
+            '    xmlns:digiKam="http://www.digikam.org/ns/1.0/">'
         ]
 
         if self.annotation:
@@ -66,6 +68,7 @@ class Metadata(BaseModel):
             lines.append('   </dc:description>')
 
         if self.tags:
+            # Standard DC Subject
             lines.append('   <dc:subject>')
             lines.append('    <rdf:Bag>')
             for tag in self.tags:
@@ -73,9 +76,19 @@ class Metadata(BaseModel):
                 lines.append(f'     <rdf:li>{safe_tag}</rdf:li>')
             lines.append('    </rdf:Bag>')
             lines.append('   </dc:subject>')
+            
+            # DigiKam TagsList
+            lines.append('   <digiKam:TagsList>')
+            lines.append('    <rdf:Seq>')
+            for tag in self.tags:
+                safe_tag = escape(tag)
+                lines.append(f'     <rdf:li>{safe_tag}</rdf:li>')
+            lines.append('    </rdf:Seq>')
+            lines.append('   </digiKam:TagsList>')
 
         lines.append('  </rdf:Description>')
         lines.append(' </rdf:RDF>')
         lines.append('</x:xmpmeta>')
+        lines.append("<?xpacket end='w'?>")
 
         return "\n".join(lines)
