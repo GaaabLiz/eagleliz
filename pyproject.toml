@@ -1,6 +1,6 @@
 [project]
 name = "eagleliz"
-version = "0.0.7"
+version = "0.0.8"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-eagleliz = "eagleliz.cli:eagleliz_app"
+eagleliz = "eagleliz.cli:main"
 
 [project.optional-dependencies]
 media = [

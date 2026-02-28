@@ -36,8 +36,9 @@ root_logger.addHandler(file_handler)
 logger = logging.getLogger("eagleliz") # This will now inherit from root and use the file handler
 
 
-
+def main():
+    eagleliz_app()
 
 
 if __name__ == "__main__":
-    eagleliz_app()
+    main()
