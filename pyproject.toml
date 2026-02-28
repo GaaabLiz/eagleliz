@@ -1,23 +1,21 @@
 [project]
 name = "eagleliz"
-version = "0.0.9"
-description = "Add your description here"
+version = "0.0.11"
+description = "Eagle.cool related utility scripts."
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
     {name = "Gabliz", email = "gabliz.dev@gmail.com"},
 ]
 dependencies = [
-
+    "pylizlib[media]>=0.3.70",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "tqdm>=4.66.0",
 ]
 
 [project.scripts]
 eagleliz = "eagleliz.cli:main"
-
-[project.optional-dependencies]
-media = [
-    "pylizlib>=0.5.13",
-]
 
 [build-system]
 requires = ["setuptools", "wheel"]

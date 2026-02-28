@@ -1,5 +1,5 @@
 name = 'eagleliz'
-version = '0.0.9'
-description = 'Add your description here'
+version = '0.0.11'
+description = 'Eagle.cool related utility scripts.'
 requires_python = '>=3.12'
 authors = [('Gabliz', 'gabliz.dev@gmail.com')]
