@@ -1,3 +1,16 @@
+## [0.0.18] - 2026-02-28
+
+### 🚀 Features
+
+- Add metadata handling and reader classes for Eagle library
+
+### 💼 Other
+
+- Bump version to 0.0.18
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.17] - 2026-02-28
 
 ### 💼 Other
