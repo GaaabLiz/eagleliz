@@ -2,14 +2,14 @@ import os
 import unittest
 import shutil
 import json
+import base64
 from pathlib import Path
 from dataclasses import asdict
 from typing import List
 
 from dotenv import load_dotenv
+from eagleliz.core.reader import EagleCoolReader
 
-from pylizlib.eaglecool.reader import EagleCoolReader, EagleItem
-from pylizlib.eaglecool.model.metadata import Metadata
 from pylizlib.core.domain.os import FileType
 
 # Load environment variables
@@ -49,6 +49,9 @@ class TestEagleCoolReader(unittest.TestCase):
             "image1.jpg", 
             {"id": "item1", "name": "Test Image", "tags": ["art", "design"], "isDeleted": False}
         )
+        # Write some content to image1.jpg to test base64
+        with open(cls.images_dir / "item1.info" / "image1.jpg", "wb") as f:
+            f.write(b"fake image content")
 
         # 2. Deleted item
         cls.create_mock_item(
@@ -140,6 +143,7 @@ class TestEagleCoolReader(unittest.TestCase):
         self.assertEqual(reader.catalogue, self.library_path)
         self.assertFalse(reader.include_deleted)
         self.assertIsNone(reader.filter_tags)
+        self.assertFalse(reader.include_base64)
 
     def test_heic_priority(self):
         """Test that .heic files are prioritized over .heic.png files."""
@@ -192,6 +196,7 @@ class TestEagleCoolReader(unittest.TestCase):
         item1 = next(i for i in reader.items if i.metadata.id == "item1")
         self.assertEqual(item1.metadata.name, "Test Image")
         self.assertTrue(str(item1.file_path).endswith("image1.jpg"))
+        self.assertIsNone(item1.base64_content)
 
     def test_include_deleted(self):
         """Test scanning with include_deleted=True."""
@@ -277,6 +282,24 @@ class TestEagleCoolReader(unittest.TestCase):
         
         with self.assertRaises(ValueError):
             reader.run()
+
+    def test_include_base64(self):
+        """Test that base64 content is included when requested."""
+        reader = EagleCoolReader(self.library_path, include_base64=True)
+        reader.run()
+        
+        item1 = next((i for i in reader.items if i.metadata.id == "item1"), None)
+        self.assertIsNotNone(item1)
+        self.assertIsNotNone(item1.base64_content)
+        
+        # Verify content
+        expected_content = base64.b64encode(b"fake image content").decode('utf-8')
+        self.assertEqual(item1.base64_content, expected_content)
+        
+        # Verify that other items also have base64 content (if they exist and are valid)
+        item3 = next((i for i in reader.items if i.metadata.id == "item3"), None)
+        self.assertIsNotNone(item3)
+        self.assertIsNotNone(item3.base64_content)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import json
+import base64
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Generator, List, Optional, Tuple
@@ -12,17 +13,19 @@ from eagleliz.model.metadata import Metadata
 
 
 class EagleItem:
-    def __init__(self, file_path: Path, metadata: Metadata):
+    def __init__(self, file_path: Path, metadata: Metadata, base64_content: Optional[str] = None):
         self.file_path = file_path
         self.metadata = metadata
+        self.base64_content = base64_content
 
 
 class EagleCoolReader:
-    def __init__(self, catalogue: Path, include_deleted: bool = False, file_types: List[FileType] = None, filter_tags: Optional[List[str]] = None):
+    def __init__(self, catalogue: Path, include_deleted: bool = False, file_types: List[FileType] = None, filter_tags: Optional[List[str]] = None, include_base64: bool = False):
         self.catalogue = catalogue
         self.include_deleted = include_deleted
         self.file_types = file_types if file_types else [FileType.IMAGE, FileType.VIDEO, FileType.AUDIO]
         self.filter_tags = filter_tags
+        self.include_base64 = include_base64
         self.items: List[EagleItem] = []
         self.error_paths: List[Tuple[Path, str]] = []
         self.items_skipped: List[Tuple[EagleItem, str]] = []
@@ -80,6 +83,17 @@ class EagleCoolReader:
             if not any(tag in metadata_obj.tags for tag in self.filter_tags):
                 self.items_skipped.append((eagle_item, "Tag mismatch"))
                 return None
+
+        # Read base64 content if requested
+        if self.include_base64:
+            try:
+                with open(media_file, "rb") as f:
+                    eagle_item.base64_content = base64.b64encode(f.read()).decode('utf-8')
+            except Exception as e:
+                print(f"[red]Error reading/encoding file {media_file}: {e}[/red]")
+                # If reading fails, we might want to skip the item or just log it.
+                # For now, I'll just log it and leave base64_content as None.
+                pass
 
         # TODO: Implement stricter checking based on self.file_types (e.g. separate Audio, Video, Image)
         
