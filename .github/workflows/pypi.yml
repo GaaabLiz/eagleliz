@@ -1,8 +1,8 @@
-name: Build and Release
+
+name: Pypi Release
 
 on:
   push:
-    # Trigger per i push di tag via git
     tags:
       - '*'
 
@@ -30,13 +30,8 @@ jobs:
           version: "latest"
           enable-cache: true
 
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Install dependencies and build package
-        run: |
-          uv sync --all-groups
-          uv build
+      - name: Set up Python and UV
+        run: make init-uv
 
       - name: Publish to PyPI
         run: uv publish

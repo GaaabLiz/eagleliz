@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  changelog-and-release:
+    name: Generate Changelog & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Init UV
+        run: make init-uv
+
+      - name: Install git-cliff
+        run: uv add --dev git-cliff
+
+      - name: Generate full changelog
+        run: uv run git-cliff --output CHANGELOG.md
+
+      - name: Commit and Push Changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          # Check if there are changes before committing
+          if git diff --staged --quiet; then
+            echo "No changes to CHANGELOG.md"
+          else
+            git commit -m "chore: update changelog [skip ci]"
+            # Fetch the latest changes from the remote branch to avoid conflicts
+            git fetch origin
+            # Determine the branch name (assuming main or master, or current HEAD)
+            git push origin HEAD:main || echo "Failed to push changelog to main, continuing..."
+          fi
+
+      - name: Generate Release Notes
+        run: uv run git-cliff --latest --strip header > RELEASE_NOTES.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES.md
+
+  build-assets:
+    name: Build Assets
+    needs: changelog-and-release
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Install Make (Windows)
+        if: runner.os == 'Windows'
+        run: choco install make
+
+      - name: Init UV
+        run: make init-uv
+
+      - name: Build Executable (Onefile)
+        run: make build-exe-onefile
+
+      - name: Build Installer (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          make install-inno-setup
+          # 'build-installer' runs 'build-app' (dir mode) then 'installer'.
+          # We need the directory build for the installer sources (defined in [Files] section of .iss).
+          make build-installer
+
+      - name: Upload Artifacts
+        uses: softprops/action-gh-release@v2
+        if: always() # Upload what we have even if one part fails
+        with:
+          files: |
+            dist/pyliz-*
+            dist/qtliz-*
+            Output/*.exe

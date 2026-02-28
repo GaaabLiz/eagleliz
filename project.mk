@@ -1,19 +1,19 @@
 
 # == PROJECT VARIABLES ==
-APP_NAME := eagleliz
 PYTHON_MAIN_PACKAGE = eagleliz
-FILE_MAIN_CLI := $(PYTHON_MAIN_PACKAGE)/core/cli.py
-FILE_MAIN := FILE_MAIN_CLI
-QT_QRC_FILE := resources/resources.qrc
-QT_RESOURCE_PY := $(PYTHON_MAIN_PACKAGE)/resource/resources_rc.py
-INNO_SETUP_FILE := installer.iss
-INNO_SETUP_VERSION_VARIABLE := MyAppVersion
+
+# == APPLICATIONS CONFIGURATION ==
+
+# Define the list of EXEs to build
+APPS_LIST := eagleliz
+
+# Configuration for 'pyliz'
+eagleliz_NAME := pyliz
+eagleliz_MAIN := $(PYTHON_MAIN_PACKAGE)/core/cli.py
+eagleliz_ICO := resources/logo.ico
+eagleliz_ICNS := resources/logo_1024x1024_1024x1024.icns
 
 
 # == FILES VARIABLES ==
 FILE_PROJECT_TOML := pyproject.toml
 FILE_PROJECT_PY_GENERATED := $(PYTHON_MAIN_PACKAGE)/project.py
-FILE_MAIN_LOGO_ICO := resources/logo.ico
-
-# == EXTERNAL COMMANDS VARIABLES ==
-QT_COMMAND_GEN_RES := pyside6-rcc
