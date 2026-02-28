@@ -12,7 +12,12 @@ dependencies = [
 ]
 
 [project.scripts]
-pyliz = "eagleliz.cli:app"
+eagleliz = "eagleliz.cli:eagleliz_app"
+
+[project.optional-dependencies]
+media = [
+    "pylizlib>=0.5.13",
+]
 
 [build-system]
 requires = ["setuptools", "wheel"]
