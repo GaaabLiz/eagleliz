@@ -3,11 +3,11 @@ import os
 from pathlib import Path
 
 # Add the project root to sys.path to allow running this script directly
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 import typer
 
-from old2.eagleliz.exporg import ExportOrganizedWorkflow
+from temp.old2.eagleliz.exporg import ExportOrganizedWorkflow
 
 app = typer.Typer(help="General utility scripts.")
 

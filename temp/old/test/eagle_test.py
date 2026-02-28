@@ -6,8 +6,8 @@ import unittest
 import os
 
 from dotenv import load_dotenv
-from old.api.eagleliz import Eagleliz
-from old.api.types import PathItem
+from temp.old.api.eagleliz import Eagleliz
+from temp.old.api.types import PathItem
 
 
 class TestVideo(unittest.TestCase):

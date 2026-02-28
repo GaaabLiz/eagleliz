@@ -1,7 +1,7 @@
 from pathlib import Path
 import typer
 
-from old2.eagleliz.controller.media_reader import EagleMediaReader, EagleMedia
+from temp.old2.eagleliz.controller.media_reader import EagleMediaReader, EagleMedia
 
 
 class ExportOrganizedWorkflow:
