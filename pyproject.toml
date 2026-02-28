@@ -1,6 +1,6 @@
 [project]
 name = "eagleliz"
-version = "0.0.15"
+version = "0.0.16"
 description = "Eagle.cool related utility scripts."
 readme = "README.md"
 requires-python = ">=3.12"
