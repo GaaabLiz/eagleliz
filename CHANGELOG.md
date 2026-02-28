@@ -1,3 +1,12 @@
+## [0.0.11] - 2026-02-28
+
+### 💼 Other
+
+- Bump version to 0.0.11
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.9] - 2026-02-28
 
 ### 🚀 Features
