@@ -13,8 +13,9 @@ from tqdm import tqdm
 
 from pylizlib.core.domain.os import FileType
 from pylizlib.core.os.file import is_media_file, is_media_sidecar_file
-from pylizlib.eaglecool.reader import EagleCoolReader
 from pylizlib.media.lizmedia import LizMedia, MediaListResult, LizMediaSearchResult, MediaStatus
+
+from eagleliz.core.reader import EagleCoolReader
 
 
 class EagleCatalogSearcher:
