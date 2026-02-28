@@ -1,3 +1,16 @@
+## [0.0.9] - 2026-02-28
+
+### 🚀 Features
+
+- Refactor entry point to use main function and bump version to 0.0.8
+
+### 💼 Other
+
+- Bump version to 0.0.9
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.7] - 2026-02-28
 
 ### 🚀 Features
