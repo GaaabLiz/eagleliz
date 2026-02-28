@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Generator, Optional
 import typer
 
-from eagleliz.core.metadata import Metadata
+from old2.eagleliz.core.metadata import Metadata
 
 
 class EagleMedia:

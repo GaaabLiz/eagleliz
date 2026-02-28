@@ -1,8 +1,7 @@
 from pathlib import Path
 import typer
 
-from eagleliz.controller.media_reader import EagleMediaReader, EagleMedia
-from eagleliz.core.metadata import Metadata
+from old2.eagleliz.controller.media_reader import EagleMediaReader, EagleMedia
 
 
 class ExportOrganizedWorkflow:

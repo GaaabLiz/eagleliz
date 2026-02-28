@@ -13,7 +13,7 @@ import typer
 #from pylizlib.network.netutils import is_endpoint_reachable
 
 from old.integration.immich import upload_asset_to_immich, update_immich_asset
-from eagleliz.core.metadata import Metadata
+from old2.eagleliz.core import Metadata
 
 app = typer.Typer(help="Eagle.cool utilities.")
 
