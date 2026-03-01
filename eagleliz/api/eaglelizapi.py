@@ -1,0 +1,137 @@
+import json
+import urllib.request
+import urllib.error
+from typing import Optional, List, Dict, Any
+from dataclasses import dataclass
+import logging
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ApplicationInfo:
+    """Dataclass representing the Eagle application information."""
+    version: str
+    prereleaseVersion: Optional[str]
+    buildVersion: str
+    execPath: str
+    platform: str
+
+@dataclass
+class EagleFolder:
+    """Dataclass representing an Eagle Folder."""
+    id: str
+    name: str
+    modificationTime: Optional[int] = None
+    images: Optional[List[str]] = None
+    folders: Optional[List[str]] = None
+    imagesMappings: Optional[Dict[str, Any]] = None
+    tags: Optional[List[str]] = None
+    children: Optional[List[Any]] = None
+    isExpand: Optional[bool] = None
+    size: Optional[int] = None
+    vstype: Optional[str] = None
+    editable: Optional[bool] = None
+    pinyin: Optional[str] = None
+    styles: Optional[Dict[str, Any]] = None
+    # We add a generic catch-all dict to avoid unpacking errors on future schema changes
+    _extra_data: Dict[str, Any] = None 
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'EagleFolder':
+        """Constructs an EagleFolder from a raw dictionary, securely ignoring unspecified kwargs."""
+        field_names = {f for f in cls.__dataclass_fields__ if f != '_extra_data'}
+        kwargs = {k: v for k, v in data.items() if k in field_names}
+        extra_data = {k: v for k, v in data.items() if k not in field_names}
+        
+        return cls(**kwargs, _extra_data=extra_data)
+
+class EagleAPIError(Exception):
+    """Base exception for Eagle API errors."""
+    pass
+
+class EagleAPI:
+    """Client for interacting with the local Eagle.cool API."""
+    
+    def __init__(self, host: str = "localhost", port: int = 41595):
+        self.base_url = f"http://{host}:{port}/api"
+        
+    def _make_request(self, endpoint: str, method: str = "GET", data: Optional[dict] = None) -> dict:
+        url = f"{self.base_url}{endpoint}"
+        
+        req_kwargs = {'method': method}
+        if data is not None:
+            json_data = json.dumps(data).encode('utf-8')
+            req_kwargs['data'] = json_data
+            req_kwargs['headers'] = {'Content-Type': 'application/json'}
+            
+        req = urllib.request.Request(url, **req_kwargs)
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                result = json.loads(response.read().decode())
+                if result.get("status") != "success":
+                   raise EagleAPIError(f"API returned status: {result.get('status')}")
+                return result.get("data", {})
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode()
+            logger.error(f"HTTP Error {e.code} for Eagle API at {url}. Body: {error_body}")
+            raise EagleAPIError(f"HTTP {e.code} error: {error_body}") from e
+        except urllib.error.URLError as e:
+            logger.error(f"Failed to connect to Eagle API at {url}. Is Eagle running? Error: {e}")
+            raise EagleAPIError(f"Connection error: {e}") from e
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse response from Eagle API at {url}. Error: {e}")
+            raise EagleAPIError(f"JSON Parse error: {e}") from e
+
+    def get_application_info(self) -> ApplicationInfo:
+        """
+        Get detailed information on the Eagle App currently running.
+        
+        Returns:
+            ApplicationInfo: An object containing version, platform, and executable path.
+        """
+        data = self._make_request("/application/info")
+        return ApplicationInfo(
+            version=data.get("version"),
+            prereleaseVersion=data.get("prereleaseVersion"),
+            buildVersion=data.get("buildVersion"),
+            execPath=data.get("execPath"),
+            platform=data.get("platform")
+        )
+
+    def create_folder(self, folder_name: str, parent_id: Optional[str] = None) -> EagleFolder:
+        """
+        Create a new folder in the current Eagle library.
+
+        Args:
+            folder_name (str): The name of the new folder.
+            parent_id (Optional[str]): The ID of the parent folder. Defaults to None (root).
+
+        Returns:
+            EagleFolder: An object representing the newly created folder.
+        """
+        payload = {"folderName": folder_name}
+        if parent_id:
+            payload["parent"] = parent_id
+            
+        data = self._make_request("/folder/create", method="POST", data=payload)
+        return EagleFolder.from_dict(data)
+
+    def rename_folder(self, folder_id: str, new_name: str) -> EagleFolder:
+        """
+        Rename an existing folder in the current Eagle library.
+
+        Args:
+            folder_id (str): The ID of the folder to rename.
+            new_name (str): The new name for the folder.
+
+        Returns:
+            EagleFolder: An object representing the renamed folder.
+        """
+        payload = {
+            "folderId": folder_id,
+            "newName": new_name
+        }
+        
+        data = self._make_request("/folder/rename", method="POST", data=payload)
+        return EagleFolder.from_dict(data)
