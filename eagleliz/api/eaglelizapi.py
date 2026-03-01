@@ -60,6 +60,19 @@ class EagleItemURLPayload:
         """Serializes payload dropping None values."""
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
+@dataclass
+class EagleItemPathPayload:
+    """Dataclass representing a single local item payload for /item/addFromPaths"""
+    path: str
+    name: str
+    website: Optional[str] = None
+    tags: Optional[List[str]] = None
+    annotation: Optional[str] = None
+    
+    def to_dict(self) -> dict:
+        """Serializes payload dropping None values."""
+        return {k: v for k, v in self.__dict__.items() if v is not None}
+
 class EagleAPIError(Exception):
     """Base exception for Eagle API errors."""
     pass
@@ -301,4 +314,28 @@ class EagleAPI:
             payload["folderId"] = folder_id
 
         self._make_request("/item/addFromPath", method="POST", data=payload)
+        return True
+
+    def add_items_from_paths(
+        self,
+        items: List[EagleItemPathPayload],
+        folder_id: Optional[str] = None
+    ) -> bool:
+        """
+        Add multiple local files to the Eagle App sequentially.
+
+        Args:
+            items (List[EagleItemPathPayload]): An array composed of strongly typed EagleItemPathPayload objects.
+            folder_id (Optional[str]): If provided, all files will be added to this specific folder ID.
+
+        Returns:
+            bool: True if the operation was successful.
+        """
+        payload_items = [item.to_dict() for item in items]
+        payload = {"items": payload_items}
+        
+        if folder_id is not None:
+            payload["folderId"] = folder_id
+            
+        self._make_request("/item/addFromPaths", method="POST", data=payload)
         return True

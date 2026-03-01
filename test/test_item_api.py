@@ -1,7 +1,7 @@
 import uuid
 import os
 import tempfile
-from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError, EagleItemURLPayload
+from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError, EagleItemURLPayload, EagleItemPathPayload
 
 def test_add_from_url():
     api = EagleAPI()
@@ -81,6 +81,42 @@ def test_add_from_url():
             # Cleanup temp file
             if os.path.exists(temp_path):
                 os.remove(temp_path)
+                
+        # Test 4: Batch Add from Paths
+        print("\nAttempting to batch add images from local Paths...")
+        try:
+            temp1 = tempfile.NamedTemporaryFile(delete=False, suffix=".txt", mode="w")
+            temp1.write("Batch Path dummy 1")
+            temp1.close()
+            
+            temp2 = tempfile.NamedTemporaryFile(delete=False, suffix=".txt", mode="w")
+            temp2.write("Batch Path dummy 2")
+            temp2.close()
+            
+            item1 = EagleItemPathPayload(
+                path=temp1.name,
+                name=f"Batch Path 1 {unique_suffix}",
+                tags=["AI_Test_Tag", "BatchPath"]
+            )
+            item2 = EagleItemPathPayload(
+                path=temp2.name,
+                name=f"Batch Path 2 {unique_suffix}",
+                tags=["AI_Test_Tag", "BatchPath"]
+            )
+            
+            success_batch_path = api.add_items_from_paths(
+                items=[item1, item2],
+                folder_id=folder_id
+            )
+            
+            print(f"✅ Batch Add from Paths Success: {success_batch_path}")
+            assert success_batch_path is True, "Expected add_items_from_paths to return True on success."
+            
+        finally:
+            if os.path.exists(temp1.name):
+                os.remove(temp1.name)
+            if os.path.exists(temp2.name):
+                os.remove(temp2.name)
         
     except EagleAPIError as e:
         print(f"❌ API Error during normal flow test: {e}")
