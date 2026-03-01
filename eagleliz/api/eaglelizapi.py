@@ -250,6 +250,46 @@ class EagleAPI:
             return data
         return []
 
+    def switch_library(self, library_path: str) -> bool:
+        """
+        Switch the library currently opened by Eagle.
+
+        Args:
+            library_path (str): Required. The path of the library to switch to.
+
+        Returns:
+            bool: True if the operation was successful.
+        """
+        payload = {"libraryPath": library_path}
+        self._make_request("/library/switch", method="POST", data=payload)
+        return True
+
+    def get_library_icon(self, library_path: str) -> bytes:
+        """
+        Obtain the raw icon bytes of the specified Library.
+
+        Args:
+            library_path (str): Required. The path of the library.
+
+        Returns:
+            bytes: The binary data of the library icon image.
+        """
+        # Properly urlencode the path parameter
+        encoded_path = urllib.parse.quote(library_path)
+        url = f"{self.base_url}/library/icon?libraryPath={encoded_path}"
+        req = urllib.request.Request(url, method="GET")
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                return response.read()
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode()
+            logger.error(f"HTTP Error {e.code} fetching library icon at {url}. Body: {error_body}")
+            raise EagleAPIError(f"HTTP {e.code} error: {error_body}") from e
+        except urllib.error.URLError as e:
+            logger.error(f"Connection error fetching library icon at {url}. Is Eagle running? Error: {e}")
+            raise EagleAPIError(f"Connection error: {e}") from e
+
     def create_folder(self, folder_name: str, parent_id: Optional[str] = None) -> EagleFolder:
         """
         Create a new folder in the current Eagle library.

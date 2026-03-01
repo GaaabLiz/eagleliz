@@ -51,5 +51,37 @@ def test_library_api():
         print(f"❌ Assertion Error during get_library_history test: {e}")
         raise
 
+    # Test: get_library_icon
+    print("\nAttempting to get Library Icon (using most recent library)...")
+    try:
+        if library_history:
+            recent_library_path = library_history[0]
+            icon_data = api.get_library_icon(recent_library_path)
+            print("✅ Get Library Icon Success!")
+            print(f"Icon data size: {len(icon_data)} bytes")
+            
+            assert isinstance(icon_data, bytes), "get_library_icon should return bytes"
+            assert len(icon_data) > 0, "Icon data should not be empty"
+        else:
+            print("⚠️ Skipped get_library_icon test because no recent libraries were found.")
+            
+    except EagleAPIError as e:
+        print(f"❌ API Error during get_library_icon test: {e}")
+        raise
+    except AssertionError as e:
+        print(f"❌ Assertion Error during get_library_icon test: {e}")
+        raise
+
+    # Test: switch_library
+    print("\nAttempting to Switch Library...")
+    # Because switching library actually restarts the backend and could disrupt
+    # the user's workflow or crash the test if the library path is invalid/missing,
+    # we'll test a negative scenario instead.
+    try:
+        api.switch_library("/invalid/path/to/nonexistent.library")
+        print("❌ Expected API error when switching to invalid library, but succeeded.")
+    except EagleAPIError as e:
+        print(f"✅ Successfully caught expected error for invalid library switch: {e}")
+
 if __name__ == "__main__":
     test_library_api()
