@@ -458,3 +458,16 @@ class EagleAPI:
         """
         data = self._make_request(f"/item/info?id={item_id}")
         return EagleItem.from_dict(data)
+
+    def get_item_thumbnail(self, item_id: str) -> str:
+        """
+        Get the absolute file system path of the thumbnail for the specified file.
+
+        Args:
+            item_id (str): Required. ID of the file.
+
+        Returns:
+            str: The absolute path pointing to the thumbnail image on disk.
+        """
+        data = self._make_request(f"/item/thumbnail?id={item_id}")
+        return str(data)
