@@ -10,7 +10,7 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from rich import print
 from rich.console import Console
@@ -19,7 +19,7 @@ from tqdm import tqdm
 
 from pylizlib.media.lizmedia import LizMedia, LizMediaSearchResult
 
-from eagleliz.domain import OrganizerOptions, OrganizerResult
+from eagleliz.model.organizer import OrganizerOptions, OrganizerResult
 
 logger = logging.getLogger(__name__)
 

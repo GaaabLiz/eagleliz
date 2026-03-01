@@ -3,18 +3,15 @@ Command line interface for the media organizer script.
 
 Provides the 'organizer' command for the pylizmedia CLI tool.
 """
-from pathlib import Path
 from typing import List, Optional
-import os
 import typer
 from rich import print
 from rich.console import Console
-from rich.table import Table
 
 from eagleliz import eagleliz_app
 from eagleliz.controller.searcher import MediaSearcher
 from eagleliz.controller.media_org import MediaOrganizer
-from eagleliz.domain import OrganizerOptions
+from eagleliz.model.organizer import OrganizerOptions
 
 
 @eagleliz_app.command()
