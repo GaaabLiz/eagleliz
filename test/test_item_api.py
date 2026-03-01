@@ -1,5 +1,5 @@
 import uuid
-from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError
+from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError, EagleItemURLPayload
 
 def test_add_from_url():
     api = EagleAPI()
@@ -30,6 +30,33 @@ def test_add_from_url():
         
         print(f"✅ Add from URL Success: {success}")
         assert success is True, "Expected add_item_from_url to return True on success."
+        
+        # Test 2: Batch Add from URLs
+        print("\nAttempting to batch add images from URLs...")
+        
+        item1 = EagleItemURLPayload(
+            url="https://picsum.photos/400/300?random=1",
+            name=f"Batch Image 1 {unique_suffix}",
+            website="https://picsum.photos",
+            tags=["AI_Test_Tag", "Batch", "Picsum"],
+            annotation="First image of the batch test."
+        )
+        
+        item2 = EagleItemURLPayload(
+            url="https://picsum.photos/400/300?random=2",
+            name=f"Batch Image 2 {unique_suffix}",
+            website="https://picsum.photos",
+            tags=["AI_Test_Tag", "Batch", "Picsum"],
+            annotation="Second image of the batch test."
+        )
+        
+        success_batch = api.add_items_from_urls(
+            items=[item1, item2],
+            folder_id=folder_id
+        )
+        
+        print(f"✅ Batch Add from URLs Success: {success_batch}")
+        assert success_batch is True, "Expected add_items_from_urls to return True on success."
         
     except EagleAPIError as e:
         print(f"❌ API Error during normal flow test: {e}")

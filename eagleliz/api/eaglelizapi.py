@@ -45,6 +45,21 @@ class EagleFolder:
         
         return cls(**kwargs, _extra_data=extra_data)
 
+@dataclass
+class EagleItemURLPayload:
+    """Dataclass representing a single item payload for /item/addFromURLs"""
+    url: str
+    name: str
+    website: Optional[str] = None
+    tags: Optional[List[str]] = None
+    annotation: Optional[str] = None
+    modificationTime: Optional[int] = None
+    headers: Optional[Dict[str, str]] = None
+    
+    def to_dict(self) -> dict:
+        """Serializes payload dropping None values."""
+        return {k: v for k, v in self.__dict__.items() if v is not None}
+
 class EagleAPIError(Exception):
     """Base exception for Eagle API errors."""
     pass
@@ -229,4 +244,24 @@ class EagleAPI:
         # the make_request function already validates this and returns the inner 'data' dict (which is empty here)
         # We can just return True upon no errors.
         self._make_request("/item/addFromURL", method="POST", data=payload)
+        return True
+
+    def add_items_from_urls(self, items: List[EagleItemURLPayload], folder_id: Optional[str] = None) -> bool:
+        """
+        Add multiple images from URLs to the Eagle App sequentially.
+
+        Args:
+            items (List[EagleItemURLPayload]): An array composed of strongly typed EagleItemURLPayload objects.
+            folder_id (Optional[str]): If provided, all images will be added to this specific folder ID.
+
+        Returns:
+            bool: True if the operation was successful.
+        """
+        payload_items = [item.to_dict() for item in items]
+        payload = {"items": payload_items}
+        
+        if folder_id is not None:
+            payload["folderId"] = folder_id
+            
+        self._make_request("/item/addFromURLs", method="POST", data=payload)
         return True
