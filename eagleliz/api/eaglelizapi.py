@@ -1,8 +1,7 @@
 import json
 import urllib.request
-import urllib.error
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass, field
 import logging
 
 logger = logging.getLogger(__name__)
@@ -76,6 +75,72 @@ class EagleItemPathPayload:
 class EagleAPIError(Exception):
     """Base exception for Eagle API errors."""
     pass
+
+@dataclass
+class EagleItem:
+    """
+    Represents an Item returned by the Eagle App API.
+    Handles known properties explicitly while gracefully keeping extra fields mapped in future API versions.
+    """
+    id: str
+    name: str
+    ext: str
+    url: str
+    annotation: str
+    tags: List[str]
+    folders: List[str]
+    size: int
+    isDeleted: bool
+    modificationTime: int
+    lastModified: int
+    noThumbnail: bool
+    width: int
+    height: int
+    palettes: List[Dict[str, Any]]
+    _extra_data: Dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "EagleItem":
+        """
+        Create an EagleItem object from a dictionary, capturing any unknown fields safely in _extra_data.
+        """
+        known_fields = {
+            "id", "name", "ext", "url", "annotation", "tags", "folders", 
+            "size", "isDeleted", "modificationTime", "lastModified", "noThumbnail", 
+            "width", "height", "palettes"
+        }
+        
+        kwargs = {}
+        extra_data = {}
+        
+        for key, value in data.items():
+            if key in known_fields:
+                kwargs[key] = value
+            else:
+                extra_data[key] = value
+                
+        # Ensure lists are cleanly parsed even if they arrive as None
+        kwargs["tags"] = kwargs.get("tags") or []
+        kwargs["folders"] = kwargs.get("folders") or []
+        kwargs["palettes"] = kwargs.get("palettes") or []
+        
+        # Populate defaults for missing required primitive keys gracefully
+        kwargs.setdefault("id", "")
+        kwargs.setdefault("name", "")
+        kwargs.setdefault("ext", "")
+        kwargs.setdefault("url", "")
+        kwargs.setdefault("annotation", "")
+        kwargs.setdefault("size", 0)
+        kwargs.setdefault("isDeleted", False)
+        kwargs.setdefault("modificationTime", 0)
+        kwargs.setdefault("lastModified", 0)
+        kwargs.setdefault("noThumbnail", False)
+        kwargs.setdefault("width", 0)
+        kwargs.setdefault("height", 0)
+
+        kwargs["_extra_data"] = extra_data
+        
+        return cls(**kwargs)
 
 class EagleAPI:
     """Client for interacting with the local Eagle.cool API."""
@@ -376,3 +441,20 @@ class EagleAPI:
 
         self._make_request("/item/addBookmark", method="POST", data=payload)
         return True
+
+    # -------------------------------------------------------------------------
+    # ITEM READ ENDPOINTS
+    # -------------------------------------------------------------------------
+
+    def get_item_info(self, item_id: str) -> EagleItem:
+        """
+        Get properties of the specified file, including the file name, tags, categorizations, folders, dimensions, etc.
+
+        Args:
+            item_id (str): Required. ID of the file.
+
+        Returns:
+            EagleItem: An object containing all the metadata of the file.
+        """
+        data = self._make_request(f"/item/info?id={item_id}")
+        return EagleItem.from_dict(data)

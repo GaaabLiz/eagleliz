@@ -140,7 +140,15 @@ def test_add_from_url():
     except AssertionError as e:
         print(f"❌ Assertion Error: {e}")
 
-    # Negative Testing
+    # Test 6: Get Item Info (Negative test for now since we don't have a known item ID)
+    print("\nAttempting to get Item Info for a fake ID...")
+    try:
+        api.get_item_info("invalid_test_id_12345")
+        print("❌ Expected API error when fetching invalid item ID, but succeeded.")
+    except EagleAPIError as e:
+        print(f"✅ Successfully caught expected error for invalid item ID: {e}")
+
+    # Test 7: Failure expected scenarios
     print("\nTesting Failure expected scenarios...")
     try:
         # Emtpy URL should fail
