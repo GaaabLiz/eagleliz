@@ -1,4 +1,6 @@
 import uuid
+import os
+import tempfile
 from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError, EagleItemURLPayload
 
 def test_add_from_url():
@@ -57,6 +59,28 @@ def test_add_from_url():
         
         print(f"✅ Batch Add from URLs Success: {success_batch}")
         assert success_batch is True, "Expected add_items_from_urls to return True on success."
+        
+        # Test 3: Add from Path
+        print("\nAttempting to add image from local Path...")
+        # Create a tiny temporary text file to act as the "image/item" since Eagle accepts any file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt", mode="w") as temp_file:
+            temp_file.write("Dummy test content for Eagle API addFromPath")
+            temp_path = temp_file.name
+        
+        try:
+            success_path = api.add_item_from_path(
+                path=temp_path,
+                name=f"Local Path File {unique_suffix}",
+                tags=["AI_Test_Tag", "LocalPath"],
+                annotation="This file was injected from a local temp directory.",
+                folder_id=folder_id
+            )
+            print(f"✅ Add from Path Success: {success_path}")
+            assert success_path is True, "Expected add_item_from_path to return True on success."
+        finally:
+            # Cleanup temp file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
         
     except EagleAPIError as e:
         print(f"❌ API Error during normal flow test: {e}")

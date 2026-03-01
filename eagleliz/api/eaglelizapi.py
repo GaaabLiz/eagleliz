@@ -265,3 +265,40 @@ class EagleAPI:
             
         self._make_request("/item/addFromURLs", method="POST", data=payload)
         return True
+
+    def add_item_from_path(
+        self,
+        path: str,
+        name: str,
+        website: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        annotation: Optional[str] = None,
+        folder_id: Optional[str] = None
+    ) -> bool:
+        """
+        Add a local file to the Eagle App.
+
+        Args:
+            path (str): Required. The absolute path of the local file.
+            name (str): Required. The name of the image/file in Eagle.
+            website (Optional[str]): The source address/website of the image.
+            tags (Optional[List[str]]): Tags for the image.
+            annotation (Optional[str]): The annotation/notes for the image.
+            folder_id (Optional[str]): ID of the folder to add the image to.
+
+        Returns:
+            bool: True if the operation was successful.
+        """
+        payload = {"path": path, "name": name}
+        
+        if website is not None:
+            payload["website"] = website
+        if tags is not None:
+            payload["tags"] = tags
+        if annotation is not None:
+            payload["annotation"] = annotation
+        if folder_id is not None:
+            payload["folderId"] = folder_id
+
+        self._make_request("/item/addFromPath", method="POST", data=payload)
+        return True
