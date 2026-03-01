@@ -442,6 +442,20 @@ class EagleAPI:
         self._make_request("/item/addBookmark", method="POST", data=payload)
         return True
 
+    def move_to_trash(self, item_ids: List[str]) -> bool:
+        """
+        Move items to the trash.
+
+        Args:
+            item_ids (List[str]): Required. A list of item IDs to be moved to the trash.
+
+        Returns:
+            bool: True if the moving was successful.
+        """
+        payload = {"itemIds": item_ids}
+        self._make_request("/item/moveToTrash", method="POST", data=payload)
+        return True
+
     # -------------------------------------------------------------------------
     # ITEM READ ENDPOINTS
     # -------------------------------------------------------------------------

@@ -143,6 +143,9 @@ def test_add_from_url():
     # Test 6: Get Items (List)
     print("\nAttempting to List Items from the test folder...")
     try:
+        # Give Eagle APP a small grace period to index the newly injected items
+        import time
+        time.sleep(2)
         items = api.get_items(limit=10, folders=[folder_id])
         print(f"✅ List Items Success: Retrieved {len(items)} items.")
         assert len(items) > 0, "Expected to find at least 1 item in the test folder."
@@ -183,7 +186,21 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"✅ Successfully caught expected error for invalid item ID thumbnail: {e}")
 
-    # Test 11: Failure expected scenarios
+    # Test 11: Move Items To Trash
+    print("\nAttempting to move test items to Trash...")
+    try:
+        items_to_delete = api.get_items(limit=100, folders=[folder_id])
+        if items_to_delete:
+            ids_to_trash = [item.id for item in items_to_delete]
+            success_trash = api.move_to_trash(ids_to_trash)
+            print(f"✅ Move to Trash Success: {success_trash} for {len(ids_to_trash)} items")
+            assert success_trash is True, "Expected move_to_trash to return True."
+        else:
+            print("⚠️ No items found to move to Trash.")
+    except EagleAPIError as e:
+        print(f"❌ API Error during Move To Trash test: {e}")
+
+    # Test 12: Failure expected scenarios
     print("\nTesting Failure expected scenarios...")
     try:
         # Emtpy URL should fail
