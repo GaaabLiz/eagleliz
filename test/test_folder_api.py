@@ -1,89 +1,79 @@
-from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError
+import pytest
 import uuid
+import time
+from eagleliz.api.eaglelizapi import EagleFolder, EagleAPIError
 
-def test_folder_api():
-    api = EagleAPI()
-    
-    unique_suffix = str(uuid.uuid4())[:8]
-    test_folder_name = f"Test_Folder_{unique_suffix}"
-    renamed_folder_name = f"Renamed_{test_folder_name}"
-    
-    # 1. Test Create Folder
-    print(f"Attempting to create folder: '{test_folder_name}'")
-    try:
-        new_folder = api.create_folder(folder_name=test_folder_name)
-        print(f"✅ Successfully created folder.")
-        print(f"   ID: {new_folder.id}")
-        print(f"   Name: {new_folder.name}")
-        
-        # Verify name matches
-        assert new_folder.name == test_folder_name, f"Expected name {test_folder_name}, got {new_folder.name}"
-        
-        # 2. Test Rename Folder
-        print(f"\nAttempting to rename folder (ID: {new_folder.id}) to: '{renamed_folder_name}'")
-        renamed_folder = api.rename_folder(folder_id=new_folder.id, new_name=renamed_folder_name)
-        
-        print(f"✅ Successfully renamed folder.")
-        print(f"   ID: {renamed_folder.id}")
-        print(f"   Name: {renamed_folder.name}")
-        
-        # Verify rename matches
-        assert renamed_folder.name == renamed_folder_name, f"Expected name {renamed_folder_name}, got {renamed_folder.name}"
-        assert renamed_folder.id == new_folder.id, "ID should not change after rename"
+class TestFolderAPI:
+    @pytest.fixture
+    def root_folder(self, api):
+        folder_name = f"RootFolder_{uuid.uuid4().hex[:6]}"
+        f = api.create_folder(folder_name)
+        time.sleep(0.5) # Allow Eagle backend to safely commit the OS file write
+        yield f
+        # Cleanup
+        try:
+            api.update_folder(f.id, new_name=f"{f.name}_trash")
+        except:
+            pass
 
-        # 3. Test Update Folder
-        new_desc = "Testing Description Update"
-        print(f"\nAttempting to update folder (ID: {renamed_folder.id}) description to: '{new_desc}'")
-        updated_folder = api.update_folder(folder_id=renamed_folder.id, new_description=new_desc, new_color="blue")
-        
-        print(f"✅ Successfully updated folder.")
-        print(f"   ID: {updated_folder.id}")
-        # The update API returns the description property. But it might be mapped dynamically into _extra_data
-        # since it's not strongly defined on `EagleFolder` yet, or if it is we can just access it.
-        # Let's inspect the payload instead:
-        if hasattr(updated_folder, 'description'):
-            print(f"   Description: {updated_folder.description}")
-            assert updated_folder.description == new_desc
-        elif 'description' in updated_folder._extra_data:
-            print(f"   Description: {updated_folder._extra_data['description']}")
-            assert updated_folder._extra_data['description'] == new_desc
+    def test_create_folder_root(self, api):
+        name = f"Root_{uuid.uuid4().hex[:6]}"
+        f = api.create_folder(name)
+        assert isinstance(f, EagleFolder)
+        assert f.id is not None
+        assert f.name == name
 
-    except EagleAPIError as e:
-        print(f"❌ API Error during normal flow test: {e}")
-        return
-    except AssertionError as e:
-        print(f"❌ Assertion Error: {e}")
-        return
+    def test_create_folder_nested(self, api, root_folder):
+        child_name = f"Child_{uuid.uuid4().hex[:6]}"
+        child = api.create_folder(child_name, parent_id=root_folder.id)
+        assert child.name == child_name
+        # The returned child might not guarantee parent lookup, but we check name and ID
+        assert child.id is not None
 
-    # 3. Test Failure Modes
-    print("\nTesting Failure expected scenarios...")
-    
-    try:
-        # Renaming a non-existent folder
-        api.rename_folder(folder_id="INVALID_NONEXISTENT_ID_12345", new_name="Should Fail")
-        print("❌ Failed: Expected error when renaming non-existent folder, but it succeeded.")
-    except EagleAPIError as e:
-        print(f"✅ Successfully caught expected error for invalid rename: {e}")
-        
-    # 5. Test List Folders
-    print("\nTesting List Folders...")
-    try:
+    def test_rename_folder(self, api, root_folder):
+        new_name = f"Renamed_{uuid.uuid4().hex[:6]}"
+        renamed = api.rename_folder(root_folder.id, new_name)
+        time.sleep(0.5)
+        assert renamed.name == new_name
+        assert renamed.id == root_folder.id
+
+    @pytest.mark.parametrize("color", ["red", "orange", "yellow", "green", "aqua", "blue", "purple", "pink"])
+    def test_update_folder_colors(self, api, root_folder, color):
+        updated = api.update_folder(root_folder.id, new_color=color)
+        assert updated.id == root_folder.id
+
+    def test_update_folder_description(self, api, root_folder):
+        desc = "This is a Pytest automated description."
+        updated = api.update_folder(root_folder.id, new_description=desc)
+        # Verify it landed either in defined props or extra_data
+        actual_desc = getattr(updated, "description", None) or updated._extra_data.get("description", "")
+        assert actual_desc == desc
+
+    def test_update_folder_combined(self, api, root_folder):
+        name = "CombinedUpdate"
+        desc = "CombinedDesc"
+        color = "aqua"
+        updated = api.update_folder(root_folder.id, new_name=name, new_description=desc, new_color=color)
+        time.sleep(0.5)
+        assert updated.name == name
+        actual_desc = getattr(updated, "description", None) or updated._extra_data.get("description", "")
+        assert actual_desc == desc
+
+    def test_rename_nonexistent_folder_fails(self, api):
+        with pytest.raises(EagleAPIError) as exc_info:
+            api.rename_folder("fake_folder_id_12345", "ShouldFail")
+        assert "error" in str(exc_info.value).lower()
+
+    def test_list_folders(self, api, root_folder):
         folders = api.list_folders()
-        print(f"✅ Successfully listed {len(folders)} root folders.")
-        if folders:
-            print(f"   First folder: {folders[0].name} (ID: {folders[0].id})")
-    except EagleAPIError as e:
-        print(f"❌ Failed to list folders: {e}")
+        assert isinstance(folders, list)
+        assert len(folders) > 0
+        assert any(f.id == root_folder.id for f in folders)
 
-    # 6. Test List Recent Folders
-    print("\nTesting List Recent Folders...")
-    try:
-        recent_folders = api.list_recent_folders()
-        print(f"✅ Successfully listed {len(recent_folders)} recent folders.")
-        if recent_folders:
-            print(f"   Most recent: {recent_folders[0].name} (ID: {recent_folders[0].id})")
-    except EagleAPIError as e:
-        print(f"❌ Failed to list recent folders: {e}")
-
-if __name__ == "__main__":
-    test_folder_api()
+    def test_list_recent_folders(self, api, root_folder):
+        # Trigger recent usage by updating it
+        api.update_folder(root_folder.id, new_color="pink")
+        recents = api.list_recent_folders()
+        assert isinstance(recents, list)
+        assert len(recents) > 0
+        assert any(f.id == root_folder.id for f in recents)
