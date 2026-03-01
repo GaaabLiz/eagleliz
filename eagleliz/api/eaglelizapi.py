@@ -135,3 +135,98 @@ class EagleAPI:
         
         data = self._make_request("/folder/rename", method="POST", data=payload)
         return EagleFolder.from_dict(data)
+
+    def update_folder(self, folder_id: str, new_name: Optional[str] = None, new_description: Optional[str] = None, new_color: Optional[str] = None) -> EagleFolder:
+        """
+        Update the specified folder with new properties.
+
+        Args:
+            folder_id (str): The ID of the folder to update.
+            new_name (Optional[str]): The new name of the folder.
+            new_description (Optional[str]): The new description of the folder.
+            new_color (Optional[str]): The new color. Valid options: "red", "orange", "green", "yellow", "aqua", "blue", "purple", "pink".
+
+        Returns:
+            EagleFolder: An object representing the updated folder.
+        """
+        payload = {"folderId": folder_id}
+        if new_name is not None:
+            payload["newName"] = new_name
+        if new_description is not None:
+            payload["newDescription"] = new_description
+        if new_color is not None:
+            payload["newColor"] = new_color
+            
+        data = self._make_request("/folder/update", method="POST", data=payload)
+        return EagleFolder.from_dict(data)
+
+    def list_folders(self) -> List[EagleFolder]:
+        """
+        Get the list of folders of the current library.
+        
+        Returns:
+            List[EagleFolder]: A list containing the root folders of the library.
+        """
+        data = self._make_request("/folder/list")
+        return [EagleFolder.from_dict(folder_data) for folder_data in data]
+
+    def list_recent_folders(self) -> List[EagleFolder]:
+        """
+        Get the list of folders recently used by the user.
+        
+        Returns:
+            List[EagleFolder]: A list containing the recently used folders.
+        """
+        data = self._make_request("/folder/listRecent")
+        return [EagleFolder.from_dict(folder_data) for folder_data in data]
+
+    def add_item_from_url(
+        self,
+        url: str,
+        name: str,
+        website: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        star: Optional[int] = None,
+        annotation: Optional[str] = None,
+        modificationTime: Optional[int] = None,
+        folderId: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None
+    ) -> bool:
+        """
+        Add an image from a URL or base64 data to the Eagle App.
+
+        Args:
+            url (str): Required. The URL of the image to be added. Supports http, https, base64.
+            name (str): Required. The name of the image.
+            website (Optional[str]): The source address of the image.
+            tags (Optional[List[str]]): Tags for the image.
+            star (Optional[int]): The rating for the image (1-5).
+            annotation (Optional[str]): The annotation/notes for the image.
+            modificationTime (Optional[int]): The creation date of the image. Modifies sorting in Eagle.
+            folderId (Optional[str]): ID of the folder to add the image to.
+            headers (Optional[Dict[str, str]]): HTTP headers, e.g., to circumvent security like referer checks.
+
+        Returns:
+            bool: True if the operation was successful.
+        """
+        payload = {"url": url, "name": name}
+        if website is not None:
+            payload["website"] = website
+        if tags is not None:
+            payload["tags"] = tags
+        if star is not None:
+            payload["star"] = star
+        if annotation is not None:
+            payload["annotation"] = annotation
+        if modificationTime is not None:
+            payload["modificationTime"] = modificationTime
+        if folderId is not None:
+            payload["folderId"] = folderId
+        if headers is not None:
+            payload["headers"] = headers
+
+        # Since a successful addFromURL just returns { "status": "success" }
+        # the make_request function already validates this and returns the inner 'data' dict (which is empty here)
+        # We can just return True upon no errors.
+        self._make_request("/item/addFromURL", method="POST", data=payload)
+        return True
