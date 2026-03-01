@@ -177,12 +177,24 @@ def test_add_from_url():
         print(f"✅ Refresh Item Thumbnail Success: {refresh_thumbnail_success}")
         assert refresh_thumbnail_success is True, "Expected refresh_item_thumbnail to return True."
 
+        # Test 11: Update Item
+        print(f"\nAttempting to update Item metadata for ID: {first_item_id}...")
+        updated_item = api.update_item(
+            item_id=first_item_id,
+            tags=["TestTag1", "UpdatedTag2"],
+            annotation="This is an updated annotation for testing.",
+            star=5
+        )
+        print(f"✅ Update Item Success: New Star='{updated_item.star}', New Annotation='{updated_item.annotation}'")
+        assert updated_item.star == 5, "Expected updated item to have 5 stars."
+        assert "UpdatedTag2" in updated_item.tags, "Expected updated item to have the new tag."
+
     except EagleAPIError as e:
-        print(f"❌ API Error during Item List/Info/Refresh tests: {e}")
+        print(f"❌ API Error during Item List/Info/Refresh/Update tests: {e}")
     except AssertionError as e:
         print(f"❌ Assertion Error: {e}")
 
-    # Test 11: Get Item Info (Negative test)
+    # Test 12: Get Item Info (Negative test)
     print("\nAttempting to get Item Info for a fake ID...")
     try:
         api.get_item_info("invalid_test_id_12345")
@@ -190,7 +202,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"✅ Successfully caught expected error for invalid item ID: {e}")
 
-    # Test 12: Get Item Thumbnail Path (Negative test)
+    # Test 13: Get Item Thumbnail Path (Negative test)
     print("\nAttempting to get Item Thumbnail for a fake ID...")
     try:
         api.get_item_thumbnail("invalid_test_id_12345")
@@ -198,7 +210,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"✅ Successfully caught expected error for invalid item ID thumbnail: {e}")
 
-    # Test 13: Move Items To Trash
+    # Test 14: Move Items To Trash
     print("\nAttempting to move test items to Trash...")
     try:
         items_to_delete = api.get_items(limit=100, folders=[folder_id])
@@ -212,7 +224,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"❌ API Error during Move To Trash test: {e}")
 
-    # Test 14: Failure expected scenarios
+    # Test 15: Failure expected scenarios
     print("\nTesting Failure expected scenarios...")
     try:
         # Emtpy URL should fail

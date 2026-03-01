@@ -97,6 +97,7 @@ class EagleItem:
     width: int
     height: int
     palettes: List[Dict[str, Any]]
+    star: int
     _extra_data: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -107,7 +108,7 @@ class EagleItem:
         known_fields = {
             "id", "name", "ext", "url", "annotation", "tags", "folders", 
             "size", "isDeleted", "modificationTime", "lastModified", "noThumbnail", 
-            "width", "height", "palettes"
+            "width", "height", "palettes", "star"
         }
         
         kwargs = {}
@@ -137,6 +138,7 @@ class EagleItem:
         kwargs.setdefault("noThumbnail", False)
         kwargs.setdefault("width", 0)
         kwargs.setdefault("height", 0)
+        kwargs.setdefault("star", 0)
 
         kwargs["_extra_data"] = extra_data
         
@@ -455,6 +457,41 @@ class EagleAPI:
         payload = {"itemIds": item_ids}
         self._make_request("/item/moveToTrash", method="POST", data=payload)
         return True
+
+    def update_item(
+        self,
+        item_id: str,
+        tags: Optional[List[str]] = None,
+        annotation: Optional[str] = None,
+        url: Optional[str] = None,
+        star: Optional[int] = None
+    ) -> EagleItem:
+        """
+        Modify specific metadata fields of an item.
+
+        Args:
+            item_id (str): Required. ID of the item to be modified.
+            tags (Optional[List[str]]): An array of strings representing tags to assign.
+            annotation (Optional[str]): A string representing the annotation/note for the item.
+            url (Optional[str]): The source url of the item.
+            star (Optional[int]): The rating between 1 and 5.
+
+        Returns:
+            EagleItem: An object reflecting the updated state of the item.
+        """
+        payload: Dict[str, Any] = {"id": item_id}
+        
+        if tags is not None:
+            payload["tags"] = tags
+        if annotation is not None:
+            payload["annotation"] = annotation
+        if url is not None:
+            payload["url"] = url
+        if star is not None:
+            payload["star"] = star
+            
+        data = self._make_request("/item/update", method="POST", data=payload)
+        return EagleItem.from_dict(data)
 
     def refresh_item_palette(self, item_id: str) -> bool:
         """
