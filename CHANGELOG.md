@@ -1,3 +1,17 @@
+## [0.0.19] - 2026-02-28
+
+### 🚀 Features
+
+- Add logol.ico
+- Add base64 content handling to EagleCoolReader
+
+### 💼 Other
+
+- Bump version to 0.0.19
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.18] - 2026-02-28
 
 ### 🚀 Features
