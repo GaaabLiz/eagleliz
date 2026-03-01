@@ -1,15 +1,35 @@
+"""
+Python bindings for interacting with the Immich API.
+
+This module provides the `ImmichAPI` class which encapsulates the REST API 
+calls to an Immich server, allowing for operations such as uploading 
+assets and updating their metadata.
+"""
 import os
 import requests
 from typing import Optional, Dict, Any
 from datetime import datetime, timezone
 
 class ImmichAPIError(Exception):
+    """Exception raised for errors encountered when interacting with the Immich API."""
     pass
 
 class ImmichAPI:
     """Python bindings for the Immich API."""
     
     def __init__(self, base_url: Optional[str] = None, api_key: Optional[str] = None):
+        """
+        Initializes the Immich API client.
+        
+        Args:
+            base_url (Optional[str]): The base URL of the Immich server (e.g., 'http://192.168.0.201:30047').
+                If not provided, falls back to the IMMICH_URL environment variable.
+            api_key (Optional[str]): The API key for authenticating with the Immich server.
+                If not provided, falls back to the IMMICH_API_KEY environment variable.
+                
+        Raises:
+            ValueError: If the base URL or API key is not provided and cannot be found in environment variables.
+        """
         # Fallback to environment variables if not provided
         self.base_url = base_url or os.environ.get("IMMICH_URL")
         self.api_key = api_key or os.environ.get("IMMICH_API_KEY")
@@ -29,7 +49,15 @@ class ImmichAPI:
         })
 
     def _get_iso_timestamp(self, timestamp: float) -> str:
-        """Converts a Unix timestamp to ISO 8601 format required by Immich."""
+        """
+        Converts a Unix timestamp to the ISO 8601 string format required by Immich.
+        
+        Args:
+            timestamp (float): The Unix timestamp in seconds to convert.
+            
+        Returns:
+            str: The formatted ISO 8601 timestamp string ending with 'Z'.
+        """
         dt = datetime.fromtimestamp(timestamp, tz=timezone.utc)
         return dt.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 

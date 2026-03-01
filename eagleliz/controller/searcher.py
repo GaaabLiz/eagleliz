@@ -32,7 +32,8 @@ class MediaSearcher:
         """
         Initialize the searcher with a root path.
         
-        :param path: The directory path to search in.
+        Args:
+            path (str): The absolute filesystem directory path to execute the search mapping against.
         """
         self.path = path
         self._result = MediaListResult()
@@ -41,47 +42,70 @@ class MediaSearcher:
         self._temp_xmp_dir: Optional[str] = None
 
     def get_result(self) -> MediaListResult:
-        """Returns the collected search results."""
+        """
+        Returns the collected internal search tracking mapping array results.
+        
+        Returns:
+            MediaListResult: The globally formatted structural object payload container.
+        """
         return self._result
 
     def run_search_system(self, exclude: str = None, dry: bool = False):
         """
-        Runs a standard filesystem search.
+        Runs a standard filesystem structural matching search strategy recursively natively.
         
-        :param exclude: Optional regex pattern for excluding files.
-        :param dry: If True, only simulate the search.
+        Args:
+            exclude (str): Optional Python regex pattern matching string evaluating exclusion metrics.
+            dry (bool): Triggers dry-run preview simulation without applying mutating callbacks.
         """
         searcher = FileSystemSearcher(self.path)
         self._result = searcher.search(exclude, dry)
 
     def run_search_eagle(self, eagletag: Optional[List[str]] = None):
         """
-        Runs a search using the Eagle catalog metadata.
+        Runs a targeted native Eagle structured payload dictionary mapping search.
         
-        :param eagletag: Optional list of Eagle tags to filter by.
+        Args:
+            eagletag (Optional[List[str]]): An array of strings representing target explicit tags.
         """
         searcher = EagleCatalogSearcher(self.path)
         searcher.search(eagletag)
         self._result = searcher.get_result()
 
     def printAcceptedAsTable(self, sort_index: int = 0):
-        """Prints the accepted files as a formatted table."""
+        """
+        Prints the accepted output files globally array formatted using rich tables.
+        
+        Args:
+            sort_index (int): Output table mapped ordering header column targeted sort value.
+        """
         printer = MediaListResultPrinter(self._result)
         printer.print_accepted(sort_index)
 
     def printRejectedAsTable(self, sort_index: int = 0):
-        """Prints the rejected files as a formatted table."""
+        """
+        Prints the rejected logical mismatch output items output table natively mapped.
+        
+        Args:
+            sort_index (int): Output table mapped ordering header column targeted sort value.
+        """
         printer = MediaListResultPrinter(self._result)
         printer.print_rejected(sort_index)
 
     def printErroredAsTable(self, sort_index: int = 0):
-        """Prints the files that encountered errors as a formatted table."""
+        """
+        Prints the internally failed native mapping parsing exceptions in an error-formatted layout structure table safely.
+        
+        Args:
+            sort_index (int): Output table mapped ordering header column targeted sort value.
+        """
         printer = MediaListResultPrinter(self._result)
         printer.print_errored(sort_index)
 
     def generate_missing_xmps(self):
         """
-        Generates missing XMP sidecar files for accepted media.
+        Generates and securely stores missing XMP sidecar payload logic payloads dynamically bound.
+        Uses Python explicitly structured XML payload mapping templates representing exact state layout structures internally.
         """
         self.generated_xmps_list = []
         self._temp_xmp_dir = tempfile.mkdtemp(prefix="pyliz_xmp_")
@@ -140,7 +164,7 @@ class MediaSearcher:
 
     def cleanup_generated_xmps(self):
         """
-        Deletes the temporary XMP files and the directory created.
+        Deletes the securely scoped internal runtime cached temporary XMP logic files dynamically isolated cleanly.
         """
         if not self.generated_xmps_list:
             if self._temp_xmp_dir and os.path.exists(self._temp_xmp_dir):

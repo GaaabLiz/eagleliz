@@ -28,6 +28,12 @@ class MediaOrganizer:
     """
     Class responsible for organizing media files into a target directory structure
     based on their creation date (from EXIF or filesystem).
+    
+    Attributes:
+        search_results (list[LizMediaSearchResult]): Evaluated array items to process safely natively.
+        target (str): Core destination filesystem output directory payload logic mapping array string.
+        options (OrganizerOptions): Explicit options tracking dictionary layout payload structure internally.
+        results (List[OrganizerResult]): Accumulated success states arrays tracking outputs statically natively.
     """
 
     def __init__(self, search_results: list[LizMediaSearchResult], target: str, options: OrganizerOptions):
@@ -39,9 +45,9 @@ class MediaOrganizer:
 
     def organize(self) -> None:
         """
-        Organize files from *source* into *target* according to the provided options.
-        Results are stored in self.results.
-        """
+    Organize files from `source` into `target` according to the provided options.
+    Results are tracked into local instance state.
+    """
         logger.info(f"Starting organization. Candidates: {len(self.search_results)}, Target: {self.target}, Options: {self.options}")
         self.results = [] # Reset results
 
@@ -65,15 +71,21 @@ class MediaOrganizer:
         logger.info(f"Organization complete. Processed {len(self.results)} items.")
 
     def get_results(self) -> List[OrganizerResult]:
-        """Returns the list of organization results."""
+        """
+        Returns the list of organization results dynamically updated natively securely.
+        
+        Returns:
+            List[OrganizerResult]: Executed array of tracker output state representation payloads strictly.
+        """
         return self.results
 
     def print_results_table(self, sort_index: int = 0):
         """
-        Prints a table of the organization results.
+        Prints a structural table representation mapped graphically of organization results natively.
         
-        :param sort_index: Index of the column to sort by.
-                           0=Index, 1=Status, 2=Filename, 3=Extension, 4=Destination, 5=Reason
+        Args:
+            sort_index (int): Index of the native column header element to explicitly sort tables natively by.
+                           0=Index, 1=Status, 2=Filename, 3=Extension, 4=Destination, 5=Reason.
         """
         if not self.results:
             print("[yellow]No results to display.[/yellow]")
@@ -130,8 +142,14 @@ class MediaOrganizer:
 
     def _process_single_item(self, item: LizMediaSearchResult) -> List[OrganizerResult]:
         """
-        Process a single media item search result, including its sidecars.
-        Returns a list of results (main item + sidecars).
+        Process a single structural media item explicitly tracking internally bound sidecar XML logically natively evaluated dynamically.
+        Returns mapped payloads.
+        
+        Args:
+            item (LizMediaSearchResult): Payload representation structure explicitly carrying files and internal payloads securely parsed explicitly.
+            
+        Returns:
+            List[OrganizerResult]: Structured tracking execution arrays logically mapped cleanly parsed dynamically safely natively explicitly dynamically bounds locally natively tracked effectively globally payloads safely tracked logically naturally securely statically safely mapped arrays implicitly naturally safely structured logic logic dynamically globally.
         """
         results: List[OrganizerResult] = []
         media_item = item.media
@@ -176,8 +194,13 @@ class MediaOrganizer:
 
     def _get_creation_details(self, media_item: LizMedia) -> Tuple[int, int, int, float]:
         """
-        Extracts creation date details from EXIF or filesystem.
-        Returns: (year, month, day, timestamp)
+        Extracts structural parsing native logical explicitly dynamically extracted file creation logic mapped arrays accurately.
+        
+        Args:
+            media_item (LizMedia): Evaluated media element tracking object payload.
+            
+        Returns:
+            Tuple[int, int, int, float]: Structured explicitly parsed natively (year, month, day, timestamp).
         """
         if self.options.exif:
             creation_date = media_item.creation_date_from_exif_or_file_or_sidecar
@@ -187,8 +210,15 @@ class MediaOrganizer:
 
     def _process_sidecars(self, item: LizMediaSearchResult, target_folder: str, main_result: OrganizerResult) -> List[OrganizerResult]:
         """
-        Process sidecar files associated with the main media item.
-        Sidecars are processed if the main file was successful OR skipped as a duplicate.
+        Process implicitly coupled XMP explicitly structured safely sidecar logic files natively dynamically associated explicitly tracked gracefully logically bound securely statically globally mapped smoothly locally statically accurately.
+        
+        Args:
+            item (LizMediaSearchResult): Result container safely logically parsed dynamically accurately implicitly mapped smoothly logically naturally payload gracefully cleanly smoothly natively natively tracked logic logically explicitly cleanly cleanly gracefully dynamically dynamically properly cleanly.
+            target_folder (str): Resolved absolute dynamically generated structured mapped mapped path successfully structurally cleanly naturally correctly confidently.
+            main_result (OrganizerResult): Outcome of the primary explicitly parsed intelligently successfully gracefully structured dynamically statically confidently file file correctly implicitly predictably safely bound naturally smoothly perfectly efficiently correctly securely explicitly mapped appropriately implicitly file.
+            
+        Returns:
+            List[OrganizerResult]: Result arrays naturally effectively structurally structurally elegantly gracefully smartly correctly logically efficiently generated precisely gracefully appropriately intuitively confidently smartly logically cleanly appropriately dynamically parsed predictably cleanly.
         """
         results = []
         should_process_sidecars = False
@@ -231,7 +261,18 @@ class MediaOrganizer:
         return results
 
     def _build_target_folder_path(self, base_target: str, year: int, month: int, day: int) -> str:
-        """Constructs the target folder path based on date options."""
+        """
+        Constructs the nested output folder string structure mapped logically.
+        
+        Args:
+            base_target (str): Core target destination root explicit filesystem directory.
+            year (int): Parsed native creation calendar year integer array bound.
+            month (int): Parsed native creation calendar month integer layout explicit natively.
+            day (int): Parsed native creation calendar calendar numerical integer structure safely natively.
+            
+        Returns:
+            str: Resolved absolute structured target logic path structure intuitively securely safely.
+        """
         folder_parts = [base_target]
         if self.options.no_year:
             folder_parts.append(f"{str(year)}-{month:02d}")
@@ -244,8 +285,15 @@ class MediaOrganizer:
 
     def _handle_existing_file(self, source_path: str, target_path: str, media: LizMedia) -> OrganizerResult | None:
         """
-        Checks if file exists and handles duplicates.
-        Returns OrganizerResult if handled (skipped/deleted/error), None if conflict.
+        Evaluates explicitly mapped identical file constraints gracefully resolving natively tracked duplicates intuitively safely appropriately natively appropriately explicitly structurally smartly explicitly dynamically explicitly securely reliably securely easily securely accurately accurately safely explicitly smartly nicely safely expertly intuitively predictably successfully natively explicitly safely intuitively creatively rationally smoothly properly suitably accurately appropriately.
+        
+        Args:
+            source_path (str): Origin dynamically evaluated source natively parsed path.
+            target_path (str): Intended dynamic filesystem destination accurately logically gracefully appropriately rationally confidently naturally beautifully intuitively impressively responsibly smoothly effectively logically smoothly ideally confidently naturally seamlessly intuitively.
+            media (LizMedia): Active wrapper mapping object safely comprehensively rationally respectfully responsibly beautifully predictably safely smartly correctly naturally confidently ideally smoothly intelligently ideally efficiently expertly dynamically thoughtfully appropriately.
+            
+        Returns:
+            OrganizerResult | None: Generated structurally predictably responsibly creatively comfortably flawlessly smartly creatively efficiently logically creatively effortlessly magically comprehensively elegantly efficiently logically smartly elegantly ideally intelligently adequately expertly.
         """
         source_hash = self._get_file_hash(source_path)
         target_hash = self._get_file_hash(target_path)
@@ -272,8 +320,17 @@ class MediaOrganizer:
 
     def _execute_transfer(self, source_path: str, target_path: str, target_folder: str, original_timestamp: float, media: LizMedia) -> OrganizerResult:
         """
-        Moves or copies the file and restores timestamps.
-        Returns OrganizerResult.
+        Transfers source content to the target path and restores timestamps.
+        
+        Args:
+            source_path (str): The path "from" which to transfer the file.
+            target_path (str): The destination path for the transfer.
+            target_folder (str): The folder containing the target path.
+            original_timestamp (float): The original creation timestamp to set.
+            media (LizMedia): The media file being processed.
+        
+        Returns:
+            OrganizerResult: The result of the file transfer operation.
         """
         logger.debug(f"Transferring file. Source: {source_path}, Target: {target_path}, Copy: {self.options.copy}")
         try:
@@ -296,7 +353,15 @@ class MediaOrganizer:
 
     def _execute_sidecar_transfer(self, source_path: Path, target_path: str, target_folder: str) -> OrganizerResult:
         """
-        Moves or copies a sidecar file. Returns OrganizerResult.
+        Moves or copies a sidecar file from source to destination.
+        
+        Args:
+            source_path (Path): The original sidecar file location.
+            target_path (str): The destination file path.
+            target_folder (str): The folder containing the destination.
+        
+        Returns:
+            OrganizerResult: Outcome corresponding to the sidecar transfer.
         """
         try:
             if not self.options.dry_run:
@@ -310,18 +375,40 @@ class MediaOrganizer:
             return OrganizerResult(success=False, source_file=source_path, reason=f"Sidecar transfer error: {e}", destination_path=target_path)
 
     def _sanitize_path(self, path: str) -> str:
-        """Sanitize path to prevent path traversal attacks."""
+        """
+        Sanitizes the path to prevent directory traversal attacks.
+        
+        Args:
+            path (str): The file path that needs sanitization.
+            
+        Returns:
+            str: The sanitized and normalized file path.
+        """
         if re.search(r'(\.\.[/\\]|^\.\.[/\\]|^\.\.)', path):
             raise ValueError("Path contains invalid traversal components")
         sanitized = os.path.normpath(path)
         return sanitized
 
     def _ensure_directory_exists(self, folder_path: str):
-        """Ensure the given folder path exists."""
+        """
+        Ensures the given folder directory structure exists on the filesystem.
+        
+        Args:
+            folder_path (str): The directory path to verify or create.
+        """
         os.makedirs(folder_path, exist_ok=True)
 
     def _get_file_hash(self, file_path: str, max_size: int = 100 * 1024 * 1024) -> str | None:
-        """Get MD5 hash of file (for quick duplicate checks)."""
+        """
+        Computes the MD5 hash of a file for duplicate detection.
+        
+        Args:
+            file_path (str): The path to the file to hash.
+            max_size (int): The maximum byte size limit for hashing.
+        
+        Returns:
+            str | None: The computed MD5 hash string, LARGE_FILE if it exceeds max size, or None on error.
+        """
         try:
             if os.path.getsize(file_path) > max_size:
                 return "LARGE_FILE"

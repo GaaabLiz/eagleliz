@@ -1,3 +1,9 @@
+"""
+Core EagleLiz reader functionality.
+
+This module provides the classes for scanning and parsing elements
+within an Eagle.cool library folder.
+"""
 import json
 import base64
 from dataclasses import dataclass, field
@@ -13,14 +19,54 @@ from eagleliz.model.metadata import Metadata
 
 
 class EagleItem:
+    """
+    Representation of an item loaded from the Eagle catalog's filesystem.
+    
+    Attributes:
+        file_path (Path): Path to the actual media asset file on disk.
+        metadata (Metadata): Parsed Metadata object extracted from `metadata.json`.
+        base64_content (Optional[str]): Base64 encoded string of the asset, if requested.
+    """
     def __init__(self, file_path: Path, metadata: Metadata, base64_content: Optional[str] = None):
+        """
+        Initializes an EagleItem explicitly.
+        
+        Args:
+            file_path (Path): Fast system Path pointing to the main file.
+            metadata (Metadata): Pydantic structured metadata object.
+            base64_content (Optional[str]): Inline file content as base64 string.
+        """
         self.file_path = file_path
         self.metadata = metadata
         self.base64_content = base64_content
 
 
 class EagleCoolReader:
+    """
+    Reader for scanning and processing an Eagle.cool library catalog format.
+    
+    Attributes:
+        catalogue (Path): Absolute path of the `.library` bundle directory.
+        include_deleted (bool): Flag determining if items marked deleted should be included.
+        file_types (List[FileType]): Allowed enum type file formats to include.
+        filter_tags (Optional[List[str]]): List of tags to filter against.
+        include_base64 (bool): Flag to aggressively read file bytes into base64.
+        items (List[EagleItem]): Accepted list of populated, mapped Eagle items.
+        error_paths (List[Tuple[Path, str]]): Paths that raised filesystem or parsing errors.
+        items_skipped (List[Tuple[EagleItem, str]]): Valid items filtered down during scan.
+        scanned_folders_count (int): Counter for the number of internal folder UUIDs scanned.
+    """
     def __init__(self, catalogue: Path, include_deleted: bool = False, file_types: List[FileType] = None, filter_tags: Optional[List[str]] = None, include_base64: bool = False):
+        """
+        Initializes the library reader.
+        
+        Args:
+            catalogue (Path): Absolute path of the `.library` bundle directory.
+            include_deleted (bool): If True, retains logically deleted media items. Defaults to False.
+            file_types (List[FileType]): Restricted valid media formats. Defaults to Image, Video, Audio.
+            filter_tags (Optional[List[str]]): Tag arrays evaluated via OR strategy to narrow down search.
+            include_base64 (bool): If True, will synchronously cache local media into a utf-8 base64 buffer.
+        """
         self.catalogue = catalogue
         self.include_deleted = include_deleted
         self.file_types = file_types if file_types else [FileType.IMAGE, FileType.VIDEO, FileType.AUDIO]
@@ -32,6 +78,13 @@ class EagleCoolReader:
         self.scanned_folders_count: int = 0
 
     def run(self):
+        """
+        Execute the scanning phase iterating over the catalog files.
+        Populates standard lists of `items`, `items_skipped`, and `error_paths`.
+        
+        Raises:
+            ValueError: If the `images` directory is not inherently present within the .library folder.
+        """
         images_dir = self.catalogue / "images"
 
         if not images_dir.exists():
@@ -46,6 +99,15 @@ class EagleCoolReader:
                     self.items.append(result)
 
     def __handle_eagle_folder(self, folder: Path) -> Optional[EagleItem]:
+        """
+        Process a specific UUID folder within the catalog.
+        
+        Args:
+            folder (Path): System path object towards the generated subfolder.
+            
+        Returns:
+            Optional[EagleItem]: Nullable EagleItem initialized based on `metadata.json` mapping. None if failed/filtered.
+        """
         metadata_obj, media_file, error_occurred = self.__scan_folder_contents(folder)
 
         if error_occurred:
@@ -101,8 +163,16 @@ class EagleCoolReader:
 
     def __scan_folder_contents(self, folder: Path) -> Tuple[Optional[Metadata], Optional[Path], bool]:
         """
-        Scans the folder to find the metadata file and the media file.
-        Returns (Metadata object, Media file path, Error occurred flag).
+        Scans strictly within a subfolder to isolate exact logical media file targets.
+        
+        Args:
+            folder (Path): The `.library/images/<UUID>` local subfolder structure.
+            
+        Returns:
+            Tuple[Optional[Metadata], Optional[Path], bool]: 
+                Index 0 points to Pydantic metadata.
+                Index 1 indicates exact media filepath ignoring thumbnails.
+                Index 2 is a strict error-flag asserting true if catastrophic disk failure occurs.
         """
         metadata_obj = None
         media_candidates = []
@@ -127,8 +197,14 @@ class EagleCoolReader:
 
     def _determine_main_file(self, file_candidates: List[Path]) -> Optional[Path]:
         """
-        Determines the main file from a list of candidate files.
-        Implements specific logic for HEIC and DNG files.
+        Determines the main file representation when multiple asset backups overlap in logic.
+        Implements strict priority hierarchies for HEIC bounding arrays.
+        
+        Args:
+            file_candidates (List[Path]): Remaining files matching target characteristics.
+            
+        Returns:
+            Optional[Path]: Narrowed precise representation target layout object.
         """
         if not file_candidates:
             return None
@@ -148,6 +224,16 @@ class EagleCoolReader:
         return file_candidates[0]
 
     def __load_metadata(self, file_path: Path, folder: Path) -> Optional[Metadata]:
+        """
+        Parses strictly typed Pydantic metadata safely.
+        
+        Args:
+            file_path (Path): Path to the `metadata.json`.
+            folder (Path): Root mapping directory for internal reference logic.
+            
+        Returns:
+            Optional[Metadata]: Defined typing payload or None on parse exception handler.
+        """
         try:
             with file_path.open('r', encoding='utf-8') as f:
                 data = json.load(f)

@@ -26,20 +26,27 @@ class EagleCatalogSearcher:
         """
         Initialize with the path to the Eagle library.
         
-        :param path: Base path of the Eagle library.
+        Args:
+            path (str): The absolute filesystem base path of the `.library` Eagle catalog.
         """
         self.path = path
         self._result = MediaListResult()
 
     def get_result(self) -> MediaListResult:
-        """Returns the search result object."""
+        """
+        Returns the collected search result object.
+        
+        Returns:
+            MediaListResult: The globally bound and tracked success and error tracking mappings.
+        """
         return self._result
 
     def search(self, eagletag: Optional[List[str]] = None):
         """
-        Performs the search in the Eagle catalog.
+        Performs the search parsing operation securely directly against the eagle library catalog internal formats.
         
-        :param eagletag: Optional list of tags to filter by.
+        Args:
+            eagletag (Optional[List[str]]): An array of strings representing tags to explicitly filter results internally by.
         """
         self._result = MediaListResult() # Reset result on new search
         reader = EagleCoolReader(
@@ -57,7 +64,13 @@ class EagleCatalogSearcher:
         self._print_summary(reader)
 
     def _process_accepted_items(self, reader: EagleCoolReader):
-        """Process items accepted by the Eagle reader, handling media and sidecars."""
+        """
+        Process mapping logic for media items successfully natively accepted by the Eagle reader.
+        Links sidecars logically into nested mapped bounds.
+        
+        Args:
+            reader (EagleCoolReader): Executed reader instance carrying validated state array properties.
+        """
         media_items = []
         sidecar_items = []
 
@@ -122,7 +135,12 @@ class EagleCatalogSearcher:
                 pbar.update(1)
 
     def _process_skipped_items(self, reader: EagleCoolReader):
-        """Process items skipped by the Eagle reader (e.g. deleted, wrong tag)."""
+        """
+        Track gracefully items explicitly skipped by the Eagle reader bounding filters.
+        
+        Args:
+            reader (EagleCoolReader): Executed instance evaluating rejection logic.
+        """
         for eagle_item, reason in tqdm(reader.items_skipped, desc="Processing Skipped Items", unit="items"):
             media_obj = None
             try:
@@ -140,7 +158,12 @@ class EagleCatalogSearcher:
             ))
 
     def _process_errors(self, reader: EagleCoolReader):
-        """Process errors encountered by the Eagle reader."""
+        """
+        Process any critical low level structural parsing errors explicitly generated safely by the underlying reader iteration.
+        
+        Args:
+            reader (EagleCoolReader): Initialized executed wrapper logging path and reason.
+        """
         for error_path, reason in tqdm(reader.error_paths, desc="Processing Reader Errors", unit="errors"):
             self._result.errored.append(LizMediaSearchResult(
                 status=MediaStatus.REJECTED,
@@ -150,7 +173,12 @@ class EagleCatalogSearcher:
             ))
 
     def _print_summary(self, reader: EagleCoolReader):
-        """Print a summary of the search results."""
+        """
+        Print a formatted tracking summary representing success states of the internal mapped reader operation outputs.
+        
+        Args:
+            reader (EagleCoolReader): Reader payload to print out to stdout explicitly.
+        """
         print("\n[bold cyan]Eagle Search Summary:[/bold cyan]")
         print(f"  Scanned folders: {reader.scanned_folders_count}")
         print(f"  File types: {', '.join([ft.name for ft in reader.file_types])}")

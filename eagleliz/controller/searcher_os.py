@@ -22,7 +22,8 @@ class FileSystemSearcher:
         """
         Initialize with the root path to scan.
         
-        :param path: Directory path to start the recursive scan.
+        Args:
+            path (str): System directory path to start the recursive file traversal scan.
         """
         self.path = path
 
@@ -30,9 +31,12 @@ class FileSystemSearcher:
         """
         Performs a recursive scan of the filesystem.
         
-        :param exclude: Optional regex pattern to exclude certain files or directories.
-        :param dry: If True, simulate the scan and log exclusions.
-        :return: A MediaListResult containing accepted and rejected items.
+        Args:
+            exclude (str): Optional regex pattern string to exclude certain matching files or directories.
+            dry (bool): If True, accurately simulates the scan logic and logs exclusions without generating side effects.
+            
+        Returns:
+            MediaListResult: A validated structural representation containing arrays of accepted and rejected media items.
         """
         result = MediaListResult()
         exclude_regex = None

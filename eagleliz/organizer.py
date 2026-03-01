@@ -122,6 +122,23 @@ def organizer(
     Organize files in the filesystem by applying metadata and filters.
 
     Supports Eagle metadata, XMP, and regex patterns for file exclusion.
+    
+    Args:
+        path (str): Source path of files to organize.
+        output (str): Destination path for organized files.
+        eaglecatalog (bool): Flag to import metadata from the Eagle catalog.
+        eagletag (Optional[List[str]]): List of Eagle tags to apply as filters.
+        xmp (bool): Flag to generate XMP files for metadata.
+        dry (bool): Flag to run in dry-run mode (preview only).
+        exclude (str): Regex pattern to exclude specific files.
+        list_accepted (bool): Flag to list accepted files during the search operation.
+        list_rejected (bool): Flag to list rejected files during the search operation.
+        list_errored (bool): Flag to list errored files during the search operation.
+        list_accepted_order_index (int): Column index to sort accepted files by (0-6).
+        list_rejected_order_index (int): Column index to sort rejected files by (0-6).
+        list_errored_order_index (int): Column index to sort errored files by (0-6).
+        print_results (bool): Flag to print the organization results in a summary table.
+        list_result_order_index (int): Column index to sort result table by (0-5).
     """
 
     # Basic validations

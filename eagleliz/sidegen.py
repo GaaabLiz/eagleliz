@@ -44,6 +44,11 @@ def sidegen(
     Scans the catalog, finds images and videos, and creates/recreates
     .xmp sidecar files in the same directory as the source media.
     If the sidecar already exists, it is deleted and recreated.
+    
+    Args:
+        path (str): The source path of the Eagle catalog (usually ending in .library).
+        eagletag (Optional[List[str]]): Eagle tags to filter the generation by.
+        dry (bool): Flag to run the command in dry-run mode without modifying any files.
     """
 
     # Basic validations

@@ -1,3 +1,9 @@
+"""
+EagleLiz CLI Initialization Module.
+
+This module initializes the PylizApp framework and configures the root 
+logger for the `eagleliz` project, before launching the Typer CLI app.
+"""
 import logging
 import os
 from datetime import datetime
@@ -37,6 +43,12 @@ logger = logging.getLogger("eagleliz") # This will now inherit from root and use
 
 
 def main():
+    """
+    Execute the main EagleLiz CLI application.
+    
+    This function acts as the entry point wrapper to trigger the 
+    `eagleliz_app` Typer instance.
+    """
     eagleliz_app()
 
 

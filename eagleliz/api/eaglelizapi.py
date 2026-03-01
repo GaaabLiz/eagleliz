@@ -8,7 +8,16 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ApplicationInfo:
-    """Dataclass representing the Eagle application information."""
+    """
+    Dataclass representing the Eagle application information.
+    
+    Attributes:
+        version (str): The stable release version of the Eagle application.
+        prereleaseVersion (Optional[str]): The prerelease version identifier, if applicable.
+        buildVersion (str): The internal build version or compilation number.
+        execPath (str): The absolute filesystem path to the Eagle executable binary.
+        platform (str): The operating system platform name (e.g., 'darwin', 'win32', 'linux').
+    """
     version: str
     prereleaseVersion: Optional[str]
     buildVersion: str
@@ -17,7 +26,26 @@ class ApplicationInfo:
 
 @dataclass
 class EagleFolder:
-    """Dataclass representing an Eagle Folder."""
+    """
+    Dataclass representing an Eagle Folder.
+    
+    Attributes:
+        id (str): The unique identifier of the folder.
+        name (str): The display name of the folder.
+        modificationTime (Optional[int]): The timestamp when the folder was last modified.
+        images (Optional[List[str]]): An array of item IDs contained directly within this folder.
+        folders (Optional[List[str]]): An array of sub-folder IDs.
+        imagesMappings (Optional[Dict[str, Any]]): Internal mapping structure mapping image IDs.
+        tags (Optional[List[str]]): Tags associated with or applied by the folder.
+        children (Optional[List[Any]]): Nested child folder representations.
+        isExpand (Optional[bool]): Whether the folder is visually expanded in the UI.
+        size (Optional[int]): The total byte size of contents in the folder.
+        vstype (Optional[str]): The folder type context for internal UI.
+        editable (Optional[bool]): Whether the folder can be edited by the user.
+        pinyin (Optional[str]): The generated pinyin search matching string for the folder name.
+        styles (Optional[Dict[str, Any]]): Visual styles or color configurations applied to the folder.
+        _extra_data (Dict[str, Any]): A catch-all dictionary for undocumented or future API fields.
+    """
     id: str
     name: str
     modificationTime: Optional[int] = None
@@ -37,7 +65,15 @@ class EagleFolder:
 
     @classmethod
     def from_dict(cls, data: dict) -> 'EagleFolder':
-        """Constructs an EagleFolder from a raw dictionary, securely ignoring unspecified kwargs."""
+        """
+        Constructs an EagleFolder from a raw dictionary, securely ignoring unspecified kwargs.
+        
+        Args:
+            data (dict): The raw JSON-like dictionary payload from the Eagle API.
+            
+        Returns:
+            EagleFolder: An instantiated EagleFolder object dynamically capturing extra fields.
+        """
         field_names = {f for f in cls.__dataclass_fields__ if f != '_extra_data'}
         kwargs = {k: v for k, v in data.items() if k in field_names}
         extra_data = {k: v for k, v in data.items() if k not in field_names}
@@ -46,7 +82,18 @@ class EagleFolder:
 
 @dataclass
 class EagleItemURLPayload:
-    """Dataclass representing a single item payload for /item/addFromURLs"""
+    """
+    Dataclass representing a single item payload for /item/addFromURLs
+    
+    Attributes:
+        url (str): The URL of the image or media file to be added.
+        name (str): The name to assign to the downloaded item in Eagle.
+        website (Optional[str]): The source website address for the item.
+        tags (Optional[List[str]]): A list of text tags to apply to the item.
+        annotation (Optional[str]): A descriptive note or annotation for the item.
+        modificationTime (Optional[int]): The nominal modification timestamp.
+        headers (Optional[Dict[str, str]]): HTTP headers used during the fetch request.
+    """
     url: str
     name: str
     website: Optional[str] = None
@@ -61,7 +108,16 @@ class EagleItemURLPayload:
 
 @dataclass
 class EagleItemPathPayload:
-    """Dataclass representing a single local item payload for /item/addFromPaths"""
+    """
+    Dataclass representing a single local item payload for /item/addFromPaths
+    
+    Attributes:
+        path (str): The absolute local filesystem path of the item to import.
+        name (str): The name to assign to the imported item in Eagle.
+        website (Optional[str]): The source website address for the item.
+        tags (Optional[List[str]]): A list of text tags to apply to the item.
+        annotation (Optional[str]): A descriptive note or annotation for the item.
+    """
     path: str
     name: str
     website: Optional[str] = None
@@ -81,6 +137,25 @@ class EagleItem:
     """
     Represents an Item returned by the Eagle App API.
     Handles known properties explicitly while gracefully keeping extra fields mapped in future API versions.
+    
+    Attributes:
+        id (str): The unique identifier of the item.
+        name (str): The display name of the item.
+        ext (str): The file extension of the item.
+        url (str): The source URL or origin link of the item.
+        annotation (str): User notes or descriptive annotation.
+        tags (List[str]): An array of strings representing the applied tags.
+        folders (List[str]): An array of folder IDs the item belongs to.
+        size (int): The file size in bytes.
+        isDeleted (bool): A flag indicating if the item is in the trash.
+        modificationTime (int): The Unix timestamp of formal modification.
+        lastModified (int): The Unix timestamp of recent system modification.
+        noThumbnail (bool): A flag indicating if the item lacks a generated thumbnail.
+        width (int): The image pixel width.
+        height (int): The image pixel height.
+        palettes (List[Dict[str, Any]]): Dominant color hex palettes analyzed by Eagle.
+        star (int): The user rating (1 to 5).
+        _extra_data (Dict[str, Any]): Remaining fields caught dynamically from future schemas.
     """
     id: str
     name: str
@@ -104,6 +179,12 @@ class EagleItem:
     def from_dict(cls, data: Dict[str, Any]) -> "EagleItem":
         """
         Create an EagleItem object from a dictionary, capturing any unknown fields safely in _extra_data.
+        
+        Args:
+            data (Dict[str, Any]): The raw JSON response mapping from the Eagle API.
+            
+        Returns:
+            EagleItem: An instantiated EagleItem object representing the parsed payload.
         """
         known_fields = {
             "id", "name", "ext", "url", "annotation", "tags", "folders", 
@@ -146,7 +227,18 @@ class EagleItem:
 
 @dataclass
 class LibraryInfo:
-    """Dataclass representing the current library information."""
+    """
+    Dataclass representing the current library information.
+    
+    Attributes:
+        folders (List[EagleFolder]): An array of EagleFolder class objects representing root folders.
+        smartFolders (List[Dict[str, Any]]): Smart folder configurations mapping.
+        quickAccess (List[Dict[str, Any]]): Quick access shortcut items.
+        tagsGroups (List[Dict[str, Any]]): Tag grouping definitions.
+        modificationTime (int): The timestamp when the library was last modified.
+        applicationVersion (str): The version of the Eagle application instance.
+        _extra_data (Dict[str, Any]): A catch-all dictionary for extraneous future schema fields.
+    """
     folders: List[EagleFolder]
     smartFolders: List[Dict[str, Any]]
     quickAccess: List[Dict[str, Any]]
@@ -157,7 +249,15 @@ class LibraryInfo:
 
     @classmethod
     def from_dict(cls, data: dict) -> 'LibraryInfo':
-        """Constructs a LibraryInfo from a raw dictionary."""
+        """
+        Constructs a LibraryInfo explicitly extracting known items from a raw dictionary.
+        
+        Args:
+            data (dict): The raw JSON payload spanning the entire library metadata config.
+            
+        Returns:
+            LibraryInfo: An instantiated LibraryInfo dataclass populated natively.
+        """
         folders_data = data.get('folders', [])
         folders = [EagleFolder.from_dict(f) for f in folders_data]
         
