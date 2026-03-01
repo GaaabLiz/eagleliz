@@ -456,6 +456,35 @@ class EagleAPI:
         self._make_request("/item/moveToTrash", method="POST", data=payload)
         return True
 
+    def refresh_item_palette(self, item_id: str) -> bool:
+        """
+        Re-analyze the colors of a file updating its palette.
+
+        Args:
+            item_id (str): Required. ID of the file.
+
+        Returns:
+            bool: True if the refresh request succeeded.
+        """
+        payload = {"id": item_id}
+        self._make_request("/item/refreshPalette", method="POST", data=payload)
+        return True
+
+    def refresh_item_thumbnail(self, item_id: str) -> bool:
+        """
+        Re-generate the thumbnail of a file used in the list view.
+        (Color analysis will also be implicitly refreshed).
+
+        Args:
+            item_id (str): Required. ID of the file.
+
+        Returns:
+            bool: True if the refresh request succeeded.
+        """
+        payload = {"id": item_id}
+        self._make_request("/item/refreshThumbnail", method="POST", data=payload)
+        return True
+
     # -------------------------------------------------------------------------
     # ITEM READ ENDPOINTS
     # -------------------------------------------------------------------------

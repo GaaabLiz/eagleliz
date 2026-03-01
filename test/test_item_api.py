@@ -165,12 +165,24 @@ def test_add_from_url():
         print(f"✅ Get Item Thumbnail Success: Path='{thumbnail_path}'")
         assert isinstance(thumbnail_path, str) and len(thumbnail_path) > 0, "Expected a valid thumbnail path."
 
+        # Test 9: Refresh Item Palette
+        print(f"\nAttempting to refresh Item Palette for ID: {first_item_id}...")
+        refresh_palette_success = api.refresh_item_palette(first_item_id)
+        print(f"✅ Refresh Item Palette Success: {refresh_palette_success}")
+        assert refresh_palette_success is True, "Expected refresh_item_palette to return True."
+
+        # Test 10: Refresh Item Thumbnail
+        print(f"\nAttempting to refresh Item Thumbnail for ID: {first_item_id}...")
+        refresh_thumbnail_success = api.refresh_item_thumbnail(first_item_id)
+        print(f"✅ Refresh Item Thumbnail Success: {refresh_thumbnail_success}")
+        assert refresh_thumbnail_success is True, "Expected refresh_item_thumbnail to return True."
+
     except EagleAPIError as e:
-        print(f"❌ API Error during Item List/Info tests: {e}")
+        print(f"❌ API Error during Item List/Info/Refresh tests: {e}")
     except AssertionError as e:
         print(f"❌ Assertion Error: {e}")
 
-    # Test 9: Get Item Info (Negative test)
+    # Test 11: Get Item Info (Negative test)
     print("\nAttempting to get Item Info for a fake ID...")
     try:
         api.get_item_info("invalid_test_id_12345")
@@ -178,7 +190,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"✅ Successfully caught expected error for invalid item ID: {e}")
 
-    # Test 10: Get Item Thumbnail Path (Negative test)
+    # Test 12: Get Item Thumbnail Path (Negative test)
     print("\nAttempting to get Item Thumbnail for a fake ID...")
     try:
         api.get_item_thumbnail("invalid_test_id_12345")
@@ -186,7 +198,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"✅ Successfully caught expected error for invalid item ID thumbnail: {e}")
 
-    # Test 11: Move Items To Trash
+    # Test 13: Move Items To Trash
     print("\nAttempting to move test items to Trash...")
     try:
         items_to_delete = api.get_items(limit=100, folders=[folder_id])
@@ -200,7 +212,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"❌ API Error during Move To Trash test: {e}")
 
-    # Test 12: Failure expected scenarios
+    # Test 14: Failure expected scenarios
     print("\nTesting Failure expected scenarios...")
     try:
         # Emtpy URL should fail
