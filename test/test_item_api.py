@@ -140,7 +140,34 @@ def test_add_from_url():
     except AssertionError as e:
         print(f"❌ Assertion Error: {e}")
 
-    # Test 6: Get Item Info (Negative test for now since we don't have a known item ID)
+    # Test 6: Get Items (List)
+    print("\nAttempting to List Items from the test folder...")
+    try:
+        items = api.get_items(limit=10, folders=[folder_id])
+        print(f"✅ List Items Success: Retrieved {len(items)} items.")
+        assert len(items) > 0, "Expected to find at least 1 item in the test folder."
+        
+        # We can now run a positive test for info and thumbnail using the first item!
+        first_item_id = items[0].id
+        
+        # Test 7: Get Item Info (Positive)
+        print(f"\nAttempting to get Item Info for ID: {first_item_id}...")
+        item_info = api.get_item_info(first_item_id)
+        print(f"✅ Get Item Info Success: Name='{item_info.name}', Ext='{item_info.ext}'")
+        assert item_info.id == first_item_id, "Returned Item ID does not match requested ID."
+        
+        # Test 8: Get Item Thumbnail Path (Positive)
+        print(f"\nAttempting to get Item Thumbnail for ID: {first_item_id}...")
+        thumbnail_path = api.get_item_thumbnail(first_item_id)
+        print(f"✅ Get Item Thumbnail Success: Path='{thumbnail_path}'")
+        assert isinstance(thumbnail_path, str) and len(thumbnail_path) > 0, "Expected a valid thumbnail path."
+
+    except EagleAPIError as e:
+        print(f"❌ API Error during Item List/Info tests: {e}")
+    except AssertionError as e:
+        print(f"❌ Assertion Error: {e}")
+
+    # Test 9: Get Item Info (Negative test)
     print("\nAttempting to get Item Info for a fake ID...")
     try:
         api.get_item_info("invalid_test_id_12345")
@@ -148,7 +175,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"✅ Successfully caught expected error for invalid item ID: {e}")
 
-    # Test 7: Get Item Thumbnail Path (Negative test for now)
+    # Test 10: Get Item Thumbnail Path (Negative test)
     print("\nAttempting to get Item Thumbnail for a fake ID...")
     try:
         api.get_item_thumbnail("invalid_test_id_12345")
@@ -156,7 +183,7 @@ def test_add_from_url():
     except EagleAPIError as e:
         print(f"✅ Successfully caught expected error for invalid item ID thumbnail: {e}")
 
-    # Test 8: Failure expected scenarios
+    # Test 11: Failure expected scenarios
     print("\nTesting Failure expected scenarios...")
     try:
         # Emtpy URL should fail

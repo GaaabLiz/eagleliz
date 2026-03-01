@@ -471,3 +471,51 @@ class EagleAPI:
         """
         data = self._make_request(f"/item/thumbnail?id={item_id}")
         return str(data)
+
+    def get_items(
+        self,
+        limit: int = 200,
+        offset: int = 0,
+        order_by: Optional[str] = None,
+        keyword: Optional[str] = None,
+        ext: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        folders: Optional[List[str]] = None
+    ) -> List[EagleItem]:
+        """
+        Get a list of items that match the specified filter conditions.
+
+        Args:
+            limit (int): The number of items to be displayed. Defaults to 200.
+            offset (int): Offset a collection of results from the api. Defaults to 0.
+            order_by (Optional[str]): The sorting order. Options include 'CREATEDATE', 'FILESIZE', 'NAME', 'RESOLUTION'. Prefix with '-' for descending, e.g., '-FILESIZE'.
+            keyword (Optional[str]): Filter by keyword.
+            ext (Optional[str]): Filter by the extension type, e.g., 'jpg', 'png'.
+            tags (Optional[List[str]]): Filter by tags.
+            folders (Optional[List[str]]): Filter by Folders by passing their IDs.
+
+        Returns:
+            List[EagleItem]: A list of objects matching the filter.
+        """
+        query_parts = []
+        query_parts.append(f"limit={limit}")
+        query_parts.append(f"offset={offset}")
+        
+        if order_by:
+            query_parts.append(f"orderBy={order_by}")
+        if keyword:
+            # properly urlencode the keyword
+            encoded_keyword = urllib.parse.quote(keyword)
+            query_parts.append(f"keyword={encoded_keyword}")
+        if ext:
+            query_parts.append(f"ext={ext}")
+        if tags:
+            # Eagle expects comma-separated values for tags
+            query_parts.append(f"tags={','.join(tags)}")
+        if folders:
+            # Eagle expects comma-separated values for folder IDs
+            query_parts.append(f"folders={','.join(folders)}")
+
+        query_string = "&".join(query_parts)
+        data = self._make_request(f"/item/list?{query_string}")
+        return [EagleItem.from_dict(item) for item in data]
