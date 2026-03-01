@@ -144,6 +144,35 @@ class EagleItem:
         
         return cls(**kwargs)
 
+@dataclass
+class LibraryInfo:
+    """Dataclass representing the current library information."""
+    folders: List[EagleFolder]
+    smartFolders: List[Dict[str, Any]]
+    quickAccess: List[Dict[str, Any]]
+    tagsGroups: List[Dict[str, Any]]
+    modificationTime: int
+    applicationVersion: str
+    _extra_data: Dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'LibraryInfo':
+        """Constructs a LibraryInfo from a raw dictionary."""
+        folders_data = data.get('folders', [])
+        folders = [EagleFolder.from_dict(f) for f in folders_data]
+        
+        known_fields = {'folders', 'smartFolders', 'quickAccess', 'tagsGroups', 'modificationTime', 'applicationVersion'}
+        kwargs = {k: v for k, v in data.items() if k in known_fields and k != 'folders'}
+        kwargs['folders'] = folders
+        kwargs.setdefault('smartFolders', [])
+        kwargs.setdefault('quickAccess', [])
+        kwargs.setdefault('tagsGroups', [])
+        kwargs.setdefault('modificationTime', 0)
+        kwargs.setdefault('applicationVersion', '')
+        
+        extra_data = {k: v for k, v in data.items() if k not in known_fields}
+        return cls(**kwargs, _extra_data=extra_data)
+
 class EagleAPI:
     """Client for interacting with the local Eagle.cool API."""
     
@@ -193,6 +222,33 @@ class EagleAPI:
             execPath=data.get("execPath"),
             platform=data.get("platform")
         )
+
+    # -------------------------------------------------------------------------
+    # LIBRARY ENDPOINTS
+    # -------------------------------------------------------------------------
+
+    def get_library_info(self) -> LibraryInfo:
+        """
+        Get detailed information of the library currently running.
+        
+        Returns:
+            LibraryInfo: An object containing folders, smart folders, quick access, etc.
+        """
+        data = self._make_request("/library/info")
+        return LibraryInfo.from_dict(data)
+
+    def get_library_history(self) -> List[str]:
+        """
+        Get the list of libraries recently opened by the Application.
+        
+        Returns:
+            List[str]: A list containing paths to recently opened libraries.
+        """
+        data = self._make_request("/library/history")
+        # Ensure it returns a list of strings
+        if isinstance(data, list):
+            return data
+        return []
 
     def create_folder(self, folder_name: str, parent_id: Optional[str] = None) -> EagleFolder:
         """
