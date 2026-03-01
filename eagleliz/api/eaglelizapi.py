@@ -339,3 +339,40 @@ class EagleAPI:
             
         self._make_request("/item/addFromPaths", method="POST", data=payload)
         return True
+
+    def add_bookmark(
+        self,
+        url: str,
+        name: str,
+        base64: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        modificationTime: Optional[int] = None,
+        folder_id: Optional[str] = None
+    ) -> bool:
+        """
+        Save a link in URL form to the Eagle App as a bookmark.
+
+        Args:
+            url (str): Required. The link of the page to be saved.
+            name (str): Required. The name of the bookmark.
+            base64 (Optional[str]): The thumbnail of the bookmark. Must be a base64 encoded image string.
+            tags (Optional[List[str]]): Tags for the bookmark.
+            modificationTime (Optional[int]): The creation date of the bookmark.
+            folder_id (Optional[str]): ID of the folder to add the bookmark to.
+
+        Returns:
+            bool: True if the operation was successful.
+        """
+        payload = {"url": url, "name": name}
+        
+        if base64 is not None:
+            payload["base64"] = base64
+        if tags is not None:
+            payload["tags"] = tags
+        if modificationTime is not None:
+            payload["modificationTime"] = modificationTime
+        if folder_id is not None:
+            payload["folderId"] = folder_id
+
+        self._make_request("/item/addBookmark", method="POST", data=payload)
+        return True

@@ -117,6 +117,23 @@ def test_add_from_url():
                 os.remove(temp1.name)
             if os.path.exists(temp2.name):
                 os.remove(temp2.name)
+                
+        # Test 5: Add Bookmark
+        print("\nAttempting to add a Bookmark...")
+        dummy_base64_png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+
+        try:
+            success_bookmark = api.add_bookmark(
+                url="https://eagle.cool",
+                name=f"Eagle.cool Bookmark {unique_suffix}",
+                base64=dummy_base64_png,
+                tags=["AI_Test_Tag", "BookmarkTest"],
+                folder_id=folder_id
+            )
+            print(f"✅ Add Bookmark Success: {success_bookmark}")
+            assert success_bookmark is True, "Expected add_bookmark to return True on success."
+        except EagleAPIError as e:
+            print(f"❌ API Error during Bookmark test: {e}")
         
     except EagleAPIError as e:
         print(f"❌ API Error during normal flow test: {e}")
