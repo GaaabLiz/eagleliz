@@ -1,3 +1,41 @@
+## [0.0.20] - 2026-03-15
+
+### 🚀 Features
+
+- Introduce AI context documentation and an onboarding workflow for the project.
+- Implement Eagle.cool API client with application info and folder management, along with initial tests.
+- Add folder update, list, and item add from URL API methods with corresponding tests.
+- Add `EagleItemURLPayload` dataclass and `add_items_from_urls` method with a corresponding test.
+- Implement `add_item_from_path` API method and add its integration test.
+- Implement batch adding of local items via `add_items_from_paths` API and add corresponding test.
+- Add `add_bookmark` method to the API client and include a corresponding test case.
+- Implement item info retrieval with `EagleItem` dataclass for robust data handling and add a negative test case.
+- Add `get_item_thumbnail` method to the API and include a corresponding test case.
+- Add `get_items` method with filtering/sorting and update item info/thumbnail tests to use retrieved item IDs.
+- Add `move_to_trash` API method and a corresponding test case for moving items to trash.
+- Add API methods for refreshing item palette and thumbnail, and include corresponding tests.
+- Implement `update_item` API method and add `star` field to `EagleItem` model.
+- Add `LibraryInfo` dataclass, `get_library_info`, and `get_library_history` methods to `EagleAPI` with corresponding tests.
+- Add methods to switch libraries and retrieve library icons with corresponding tests.
+- Add Immich integration, remove old API files, and update .gitignore.
+- Add Immich integration module.
+- Add initial TestCatalog.library files and update .gitignore.
+- Populate TestCatalog.library with new assets and metadata, and refactor test files.
+- Add Immich integration with an API client for uploading and updating assets, introducing `python-dotenv` and `requests` dependencies.
+- Added async api client and token support
+
+### 💼 Other
+
+- Bump version to 0.0.20
+
+### 🚜 Refactor
+
+- Reorganize imports and rename domain.py to organizer.py
+- Modularize project structure by creating new packages and removing old test library files. Added documentation to all eagleliz files.
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.19] - 2026-02-28
 
 ### 🚀 Features
