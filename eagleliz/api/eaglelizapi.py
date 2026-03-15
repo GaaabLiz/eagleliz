@@ -313,6 +313,12 @@ class EagleAPI:
 
         req_kwargs = {'method': method}
         if data is not None:
+            # If method is POST, ensure token is in data if it exists
+            if method == "POST" and self.token:
+                if isinstance(data, dict) and "token" not in data:
+                    data = data.copy()
+                    data["token"] = self.token
+            
             json_data = json.dumps(data).encode('utf-8')
             req_kwargs['data'] = json_data
             req_kwargs['headers'] = {'Content-Type': 'application/json'}
@@ -852,6 +858,10 @@ class AsyncEagleAPI(EagleAPI):
                 if method == "GET":
                     response = await client.get(url, params=params)
                 elif method == "POST":
+                    # If this is a POST request, include token in the JSON body
+                    if self.token and isinstance(data, dict) and "token" not in data:
+                        data = data.copy()
+                        data["token"] = self.token
                     response = await client.post(url, params=params, json=data)
                 else:
                     raise EagleAPIError(f"Unsupported method: {method}")
