@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.request
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
@@ -291,6 +292,16 @@ class EagleAPI:
         host = parsed.hostname or "localhost"
         port = parsed.port or 41595
         return cls(host=host, port=port, token=token)
+
+    @classmethod
+    def from_env(cls, env_var: str = "EAGLE_URL"):
+        """
+        Creates an instance using a URL stored in an environment variable.
+        """
+        url = os.getenv(env_var)
+        if not url:
+            return cls()
+        return cls.from_url(url)
 
     def _make_request(self, endpoint: str, method: str = "GET", data: Optional[dict] = None) -> dict:
         url = f"{self.base_url}{endpoint}"
@@ -818,8 +829,15 @@ class AsyncEagleAPI(EagleAPI):
     """
     Async client for interacting with the local Eagle.cool API using httpx.
     """
-    def __init__(self, host: str = "localhost", port: int = 41595, token: Optional[str] = None):
-        super().__init__(host, port, token)
+    @classmethod
+    def from_env(cls, env_var: str = "EAGLE_URL"):
+        """
+        Creates an async instance using a URL stored in an environment variable.
+        """
+        url = os.getenv(env_var)
+        if not url:
+            return cls()
+        return cls.from_url(url)
 
     async def _make_request(self, endpoint: str, method: str = "GET", data: Optional[dict] = None) -> dict:
         import httpx
@@ -830,34 +848,51 @@ class AsyncEagleAPI(EagleAPI):
             params["token"] = self.token
             
         async with httpx.AsyncClient() as client:
-            if method == "GET":
-                response = await client.get(url, params=params)
-            elif method == "POST":
-                # If we have explicit query params (token), we need to pass them
-                response = await client.post(url, params=params, json=data)
-            else:
-                raise EagleAPIError(f"Unsupported method: {method}")
-                
             try:
+                if method == "GET":
+                    response = await client.get(url, params=params)
+                elif method == "POST":
+                    response = await client.post(url, params=params, json=data)
+                else:
+                    raise EagleAPIError(f"Unsupported method: {method}")
+                
+                # Check for HTTP errors first
                 response.raise_for_status()
                 result = response.json()
+                
                 if result.get("status") != "success":
-                    raise EagleAPIError(f"API returned status: {result.get('status')}")
+                    # Mask token in URL for logging
+                    log_url = str(response.url)
+                    if self.token:
+                        log_url = log_url.replace(self.token, "********")
+                    logger.error(f"Eagle API returned error status. URL: {log_url}, Result: {result}")
+                    raise EagleAPIError(f"API returned status: {result.get('status')}. Message: {result.get('message')}")
+                
                 return result.get("data", {})
+
             except httpx.HTTPStatusError as e:
-                logger.error(f"HTTP Error {e.response.status_code} for Eagle API at {url}. Body: {e.response.text}")
+                # Mask token in URL for logging
+                log_url = str(e.request.url)
+                if self.token:
+                    log_url = log_url.replace(self.token, "********")
+                logger.error(f"HTTP Error {e.response.status_code} for Eagle API at {log_url}. Body: {e.response.text}")
                 raise EagleAPIError(f"HTTP {e.response.status_code} error: {e.response.text}") from e
             except Exception as e:
-                logger.error(f"Request failed for {url}: {e}")
+                logger.error(f"Request failed for {endpoint}: {e}")
                 raise EagleAPIError(f"Request failed: {e}") from e
 
-    # The rest of the methods are inherited and use _make_request.
-    # However, since they are defined as sync in the parent, we need to override the ones we use
-    # to be async or ensure they call the async _make_request.
-    
     async def get_items(self, **kwargs) -> List[EagleItem]:
-        # Implementation of get_items (manually repeated to be async)
-        query_parts = [f"{k}={v}" for k, v in kwargs.items() if v is not None]
+        # Correctly serialize list parameters for the query string
+        processed_kwargs = {}
+        for k, v in kwargs.items():
+            if v is None:
+                continue
+            if isinstance(v, list):
+                processed_kwargs[k] = ",".join(map(str, v))
+            else:
+                processed_kwargs[k] = v
+        
+        query_parts = [f"{k}={urllib.parse.quote(str(v))}" for k, v in processed_kwargs.items()]
         endpoint = f"/item/list?{'&'.join(query_parts)}" if query_parts else "/item/list"
         data = await self._make_request(endpoint)
         return [EagleItem.from_dict(item) for item in data]
