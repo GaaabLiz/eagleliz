@@ -1,3 +1,16 @@
+## [0.0.23] - 2026-03-15
+
+### 💼 Other
+
+- Bump version to 0.0.23
+
+### 🚜 Refactor
+
+- Refactored async client and added from_env
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.22] - 2026-03-15
 
 ### 🚀 Features
