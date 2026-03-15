@@ -1,3 +1,16 @@
+## [0.0.24] - 2026-03-15
+
+### 🚀 Features
+
+- Added token to post request body
+
+### 💼 Other
+
+- Bump version to 0.0.24
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.23] - 2026-03-15
 
 ### 💼 Other
