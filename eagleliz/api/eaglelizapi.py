@@ -845,24 +845,24 @@ class AsyncEagleAPI(EagleAPI):
             return cls()
         return cls.from_url(url)
 
-    async def _make_request(self, endpoint: str, method: str = "GET", data: Optional[dict] = None) -> dict:
+    async def _make_request(self, endpoint: str, method: str = "GET", data: Optional[dict] = None, params: Optional[dict] = None) -> dict:
         import httpx
         url = f"{self.base_url}{endpoint}"
         
-        params = {}
+        request_params = params.copy() if params else {}
         if self.token:
-            params["token"] = self.token
+            request_params["token"] = self.token
             
         async with httpx.AsyncClient() as client:
             try:
                 if method == "GET":
-                    response = await client.get(url, params=params)
+                    response = await client.get(url, params=request_params)
                 elif method == "POST":
                     # If this is a POST request, include token in the JSON body
                     if self.token and isinstance(data, dict) and "token" not in data:
                         data = data.copy()
                         data["token"] = self.token
-                    response = await client.post(url, params=params, json=data)
+                    response = await client.post(url, params=request_params, json=data)
                 else:
                     raise EagleAPIError(f"Unsupported method: {method}")
                 
@@ -892,19 +892,23 @@ class AsyncEagleAPI(EagleAPI):
                 raise EagleAPIError(f"Request failed: {e}") from e
 
     async def get_items(self, **kwargs) -> List[EagleItem]:
-        # Correctly serialize list parameters for the query string
-        processed_kwargs = {}
+        # Construct parameters dictionary
+        params = {}
         for k, v in kwargs.items():
             if v is None:
                 continue
+            
+            # Map Python-style kwarg names to Eagle API parameter names if necessary
+            eagle_key = k
+            if k == "order_by": eagle_key = "orderBy"
+            
             if isinstance(v, list):
-                processed_kwargs[k] = ",".join(map(str, v))
+                # Eagle expects comma-separated values for tags/folders
+                params[eagle_key] = ",".join(map(str, v))
             else:
-                processed_kwargs[k] = v
+                params[eagle_key] = v
         
-        query_parts = [f"{k}={urllib.parse.quote(str(v))}" for k, v in processed_kwargs.items()]
-        endpoint = f"/item/list?{'&'.join(query_parts)}" if query_parts else "/item/list"
-        data = await self._make_request(endpoint)
+        data = await self._make_request("/item/list", params=params)
         return [EagleItem.from_dict(item) for item in data]
 
     async def list_folders(self) -> List[EagleFolder]:
