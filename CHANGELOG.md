@@ -1,3 +1,17 @@
+## [0.0.22] - 2026-03-15
+
+### 🚀 Features
+
+- Added httpx dependency
+
+### 💼 Other
+
+- Bump version to 0.0.21
+- Bump version to 0.0.22
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.20] - 2026-03-15
 
 ### 🚀 Features
