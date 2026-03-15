@@ -276,12 +276,30 @@ class LibraryInfo:
 class EagleAPI:
     """Client for interacting with the local Eagle.cool API."""
     
-    def __init__(self, host: str = "localhost", port: int = 41595):
+    def __init__(self, host: str = "localhost", port: int = 41595, token: Optional[str] = None):
         self.base_url = f"http://{host}:{port}/api"
+        self.token = token
         
+    @classmethod
+    def from_url(cls, raw_url: str):
+        """
+        Creates an instance from a raw Eagle API URL (which might include a token).
+        """
+        from urllib.parse import urlparse, parse_qs
+        parsed = urlparse(raw_url)
+        token = parse_qs(parsed.query).get('token', [None])[0]
+        host = parsed.hostname or "localhost"
+        port = parsed.port or 41595
+        return cls(host=host, port=port, token=token)
+
     def _make_request(self, endpoint: str, method: str = "GET", data: Optional[dict] = None) -> dict:
         url = f"{self.base_url}{endpoint}"
         
+        # Add token to request params if present
+        if self.token:
+            separator = "&" if "?" in url else "?"
+            url += f"{separator}token={self.token}"
+
         req_kwargs = {'method': method}
         if data is not None:
             json_data = json.dumps(data).encode('utf-8')
@@ -795,3 +813,62 @@ class EagleAPI:
         query_string = "&".join(query_parts)
         data = self._make_request(f"/item/list?{query_string}")
         return [EagleItem.from_dict(item) for item in data]
+
+class AsyncEagleAPI(EagleAPI):
+    """
+    Async client for interacting with the local Eagle.cool API using httpx.
+    """
+    def __init__(self, host: str = "localhost", port: int = 41595, token: Optional[str] = None):
+        super().__init__(host, port, token)
+
+    async def _make_request(self, endpoint: str, method: str = "GET", data: Optional[dict] = None) -> dict:
+        import httpx
+        url = f"{self.base_url}{endpoint}"
+        
+        params = {}
+        if self.token:
+            params["token"] = self.token
+            
+        async with httpx.AsyncClient() as client:
+            if method == "GET":
+                response = await client.get(url, params=params)
+            elif method == "POST":
+                # If we have explicit query params (token), we need to pass them
+                response = await client.post(url, params=params, json=data)
+            else:
+                raise EagleAPIError(f"Unsupported method: {method}")
+                
+            try:
+                response.raise_for_status()
+                result = response.json()
+                if result.get("status") != "success":
+                    raise EagleAPIError(f"API returned status: {result.get('status')}")
+                return result.get("data", {})
+            except httpx.HTTPStatusError as e:
+                logger.error(f"HTTP Error {e.response.status_code} for Eagle API at {url}. Body: {e.response.text}")
+                raise EagleAPIError(f"HTTP {e.response.status_code} error: {e.response.text}") from e
+            except Exception as e:
+                logger.error(f"Request failed for {url}: {e}")
+                raise EagleAPIError(f"Request failed: {e}") from e
+
+    # The rest of the methods are inherited and use _make_request.
+    # However, since they are defined as sync in the parent, we need to override the ones we use
+    # to be async or ensure they call the async _make_request.
+    
+    async def get_items(self, **kwargs) -> List[EagleItem]:
+        # Implementation of get_items (manually repeated to be async)
+        query_parts = [f"{k}={v}" for k, v in kwargs.items() if v is not None]
+        endpoint = f"/item/list?{'&'.join(query_parts)}" if query_parts else "/item/list"
+        data = await self._make_request(endpoint)
+        return [EagleItem.from_dict(item) for item in data]
+
+    async def list_folders(self) -> List[EagleFolder]:
+        data = await self._make_request("/folder/list")
+        return [EagleFolder.from_dict(folder_data) for folder_data in data]
+
+    async def update_item(self, item_id: str, tags: Optional[List[str]] = None, **kwargs) -> EagleItem:
+        payload = {"id": item_id}
+        if tags is not None: payload["tags"] = tags
+        payload.update({k: v for k, v in kwargs.items() if v is not None})
+        data = await self._make_request("/item/update", method="POST", data=payload)
+        return EagleItem.from_dict(data)

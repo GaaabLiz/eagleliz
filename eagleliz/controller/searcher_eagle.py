@@ -22,14 +22,15 @@ class EagleCatalogSearcher:
     """
     Strategy class to search for media files using the Eagle library.
     """
-    def __init__(self, path: str):
+    def __init__(self, path: str, include_base64: bool = False):
         """
         Initialize with the path to the Eagle library.
         
-        Args:
-            path (str): The absolute filesystem base path of the `.library` Eagle catalog.
+        :param path: Base path of the Eagle library.
+        :param include_base64: Whether to include base64 content of media files.
         """
         self.path = path
+        self.include_base64 = include_base64
         self._result = MediaListResult()
 
     def get_result(self) -> MediaListResult:
@@ -52,7 +53,8 @@ class EagleCatalogSearcher:
         reader = EagleCoolReader(
             Path(self.path), 
             file_types=[FileType.IMAGE, FileType.VIDEO, FileType.AUDIO, FileType.MEDIA_SIDECAR],
-            filter_tags=eagletag
+            filter_tags=eagletag,
+            include_base64=self.include_base64
         )
         
         # Run the reader to populate findings (blocking operation with its own progress bar)
@@ -102,6 +104,7 @@ class EagleCatalogSearcher:
                     path=eagle.file_path,
                     media=lizmedia
                 ))
+                self._result.accepted[-1].media.base64_content = eagle.base64_content
                 pbar.update(1)
             pbar.set_description("Media processing complete")
 
