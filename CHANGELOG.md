@@ -1,3 +1,13 @@
+## [0.0.25] - 2026-03-15
+
+### 💼 Other
+
+- Refactored async request params handling and get_items query building
+- Bump version to 0.0.25
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.24] - 2026-03-15
 
 ### 🚀 Features
