@@ -1,3 +1,16 @@
+## [0.0.26] - 2026-03-18
+
+### 🚀 Features
+
+- `added async info methods to AsyncEagleAPI`
+
+### 💼 Other
+
+- Bump version to 0.0.26
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.25] - 2026-03-15
 
 ### 💼 Other
