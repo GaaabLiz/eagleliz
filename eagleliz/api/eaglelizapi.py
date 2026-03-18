@@ -921,3 +921,21 @@ class AsyncEagleAPI(EagleAPI):
         payload.update({k: v for k, v in kwargs.items() if v is not None})
         data = await self._make_request("/item/update", method="POST", data=payload)
         return EagleItem.from_dict(data)
+
+    async def get_application_info(self) -> ApplicationInfo:
+        data = await self._make_request("/application/info")
+        return ApplicationInfo(
+            version=data.get("version"),
+            prereleaseVersion=data.get("prereleaseVersion"),
+            buildVersion=data.get("buildVersion"),
+            execPath=data.get("execPath"),
+            platform=data.get("platform")
+        )
+
+    async def get_library_info(self) -> LibraryInfo:
+        data = await self._make_request("/library/info")
+        return LibraryInfo.from_dict(data)
+
+    async def get_item_info(self, item_id: str) -> EagleItem:
+        data = await self._make_request(f"/item/info?id={item_id}")
+        return EagleItem.from_dict(data)
