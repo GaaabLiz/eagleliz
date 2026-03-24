@@ -1,6 +1,6 @@
 import pytest
 import time
-from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError
+from eagleliz.api.eagleapi import EagleAPI, EagleAPIError
 from conftest import verify_item_in_catalog
 
 class TestAppAPI:

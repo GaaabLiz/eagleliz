@@ -1,7 +1,7 @@
 import pytest
 import uuid
 import time
-from eagleliz.api.eaglelizapi import EagleFolder, EagleAPIError
+from eagleliz.api.eagleapi import EagleFolder, EagleAPIError
 
 class TestFolderAPI:
     @pytest.fixture

@@ -4,7 +4,7 @@ import tempfile
 import os
 import time
 from pathlib import Path
-from eagleliz.api.eaglelizapi import EagleItemURLPayload, EagleItemPathPayload, EagleAPIError
+from eagleliz.api.eagleapi import EagleItemURLPayload, EagleItemPathPayload, EagleAPIError
 from conftest import verify_item_in_catalog
 
 class TestItemAPI:
