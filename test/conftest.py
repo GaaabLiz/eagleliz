@@ -2,7 +2,7 @@ import pytest
 import os
 import time
 from pathlib import Path
-from eagleliz.api.eaglelizapi import EagleAPI, EagleAPIError
+from eagleliz.api.eagleapi import EagleAPI, EagleAPIError
 
 # Use the catalog provided by the user in the root directory
 TEST_CATALOG_PATH = Path(__file__).parent.parent / "TestCatalog.library"
