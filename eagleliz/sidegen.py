@@ -5,7 +5,6 @@ Provides the 'sidegen' command for the pylizmedia CLI tool.
 """
 from pathlib import Path
 from typing import List, Optional
-import os
 import typer
 from pylizlib.media.util.metadata import MetadataHandler
 from rich import print
@@ -132,10 +131,10 @@ def sidegen(
 
     print("\n" + "─" * 50)
     if dry:
-        print(f"🔍 [bold]Dry-run complete.[/bold]")
+        print("🔍 [bold]Dry-run complete.[/bold]")
         print(f"Total files that would be processed: {processed_count}")
     else:
-        print(f"✅ [bold]Processing complete.[/bold]")
+        print("✅ [bold]Processing complete.[/bold]")
         print(f"Successfully generated/updated: {processed_count}")
         if error_count > 0:
             print(f"Errors: {error_count}")

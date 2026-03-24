@@ -4,7 +4,6 @@ Search strategy for Eagle library catalogs.
 Integrates with the EagleCool reader to extract media items and metadata
 from an Eagle library folder.
 """
-import time
 from pathlib import Path
 from typing import List, Optional
 

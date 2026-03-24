@@ -11,8 +11,6 @@ from datetime import datetime
 from pylizlib.core.app.pylizapp import PylizApp, PylizDirFoldersTemplate
 
 from eagleliz import eagleliz_app
-import eagleliz.sidegen
-import eagleliz.organizer
 
 # Initialize PylizApp
 app = PylizApp("eagleliz")

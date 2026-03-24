@@ -13,7 +13,7 @@ class TestFolderAPI:
         # Cleanup
         try:
             api.update_folder(f.id, new_name=f"{f.name}_trash")
-        except:
+        except Exception:
             pass
 
     def test_create_folder_root(self, api):

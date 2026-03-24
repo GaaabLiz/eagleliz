@@ -3,7 +3,6 @@ import uuid
 import tempfile
 import os
 import time
-from pathlib import Path
 from eagleliz.api.eagleapi import EagleItemURLPayload, EagleItemPathPayload, EagleAPIError
 from conftest import verify_item_in_catalog
 
@@ -134,8 +133,10 @@ class TestItemAPI:
             items = api.get_items(tags=["BPath"], limit=10, folders=[self.sandbox.id])
             assert len(items) == 2
         finally:
-            if os.path.exists(p1): os.remove(p1)
-            if os.path.exists(p2): os.remove(p2)
+            if os.path.exists(p1):
+                os.remove(p1)
+            if os.path.exists(p2):
+                os.remove(p2)
 
     # ==========================
     # Bookmark Addition
@@ -177,7 +178,7 @@ class TestItemAPI:
     def test_get_update_refresh_cycle(self, api):
         # 1. Add item
         url = "https://picsum.photos/id/55/100"
-        name = f"CycleItem"
+        name = "CycleItem"
         api.add_item_from_url(url=url, name=name, folderId=self.sandbox.id)
         time.sleep(1.5)
         items = api.get_items(keyword=name, limit=1, folders=[self.sandbox.id])

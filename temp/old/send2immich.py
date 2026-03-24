@@ -5,7 +5,6 @@ from pathlib import Path
 
 import requests
 import typer
-from pydantic import BaseModel, AnyUrl, ValidationError
 
 
 

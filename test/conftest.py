@@ -1,5 +1,4 @@
 import pytest
-import os
 import time
 from pathlib import Path
 from eagleliz.api.eagleapi import EagleAPI, EagleAPIError

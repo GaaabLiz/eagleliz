@@ -6,9 +6,8 @@ within an Eagle.cool library folder.
 """
 import json
 import base64
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Generator, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from rich import print
 from tqdm import tqdm
