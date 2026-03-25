@@ -1,7 +1,7 @@
 """
 Search strategy for Eagle library catalogs.
 
-Integrates with the EagleCool reader to extract media items and metadata
+Integrates with the Eagle local reader to extract media items and metadata
 from an Eagle library folder.
 """
 from pathlib import Path
@@ -14,7 +14,7 @@ from pylizlib.core.domain.os import FileType
 from pylizlib.core.os.file import is_media_file, is_media_sidecar_file
 from pylizlib.media.lizmedia import LizMedia, MediaListResult, LizMediaSearchResult, MediaStatus
 
-from eagleliz.core.reader import EagleCoolReader
+from eagleliz.local.reader import EagleLocalReader
 
 
 class EagleCatalogSearcher:
@@ -49,7 +49,7 @@ class EagleCatalogSearcher:
             eagletag (Optional[List[str]]): An array of strings representing tags to explicitly filter results internally by.
         """
         self._result = MediaListResult() # Reset result on new search
-        reader = EagleCoolReader(
+        reader = EagleLocalReader(
             Path(self.path), 
             file_types=[FileType.IMAGE, FileType.VIDEO, FileType.AUDIO, FileType.MEDIA_SIDECAR],
             filter_tags=eagletag,
@@ -64,13 +64,13 @@ class EagleCatalogSearcher:
         self._process_errors(reader)
         self._print_summary(reader)
 
-    def _process_accepted_items(self, reader: EagleCoolReader):
+    def _process_accepted_items(self, reader: EagleLocalReader):
         """
         Process mapping logic for media items successfully natively accepted by the Eagle reader.
         Links sidecars logically into nested mapped bounds.
         
         Args:
-            reader (EagleCoolReader): Executed reader instance carrying validated state array properties.
+            reader (EagleLocalReader): Executed reader instance carrying validated state array properties.
         """
         media_items = []
         sidecar_items = []
@@ -136,12 +136,12 @@ class EagleCatalogSearcher:
                 ))
                 pbar.update(1)
 
-    def _process_skipped_items(self, reader: EagleCoolReader):
+    def _process_skipped_items(self, reader: EagleLocalReader):
         """
         Track gracefully items explicitly skipped by the Eagle reader bounding filters.
         
         Args:
-            reader (EagleCoolReader): Executed instance evaluating rejection logic.
+            reader (EagleLocalReader): Executed instance evaluating rejection logic.
         """
         for eagle_item, reason in tqdm(reader.items_skipped, desc="Processing Skipped Items", unit="items"):
             media_obj = None
@@ -159,12 +159,12 @@ class EagleCatalogSearcher:
                 reason=reason
             ))
 
-    def _process_errors(self, reader: EagleCoolReader):
+    def _process_errors(self, reader: EagleLocalReader):
         """
         Process any critical low level structural parsing errors explicitly generated safely by the underlying reader iteration.
         
         Args:
-            reader (EagleCoolReader): Initialized executed wrapper logging path and reason.
+            reader (EagleLocalReader): Initialized executed wrapper logging path and reason.
         """
         for error_path, reason in tqdm(reader.error_paths, desc="Processing Reader Errors", unit="errors"):
             self._result.errored.append(LizMediaSearchResult(
@@ -174,12 +174,12 @@ class EagleCatalogSearcher:
                 reason=reason
             ))
 
-    def _print_summary(self, reader: EagleCoolReader):
+    def _print_summary(self, reader: EagleLocalReader):
         """
         Print a formatted tracking summary representing success states of the internal mapped reader operation outputs.
         
         Args:
-            reader (EagleCoolReader): Reader payload to print out to stdout explicitly.
+            reader (EagleLocalReader): Reader payload to print out to stdout explicitly.
         """
         print("\n[bold cyan]Eagle Search Summary:[/bold cyan]")
         print(f"  Scanned folders: {reader.scanned_folders_count}")
@@ -191,3 +191,4 @@ class EagleCatalogSearcher:
         
         total_sidecars = sum(len(item.media.attached_sidecar_files) for item in self._result.accepted if item.media)
         print(f"  Sidecar files linked: {total_sidecars}")
+

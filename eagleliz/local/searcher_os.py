@@ -84,3 +84,4 @@ class FileSystemSearcher:
             pbar.set_description("Scanning complete")
         
         return result
+

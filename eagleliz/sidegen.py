@@ -12,7 +12,7 @@ from rich.console import Console
 from tqdm import tqdm
 
 from eagleliz import eagleliz_app
-from eagleliz.controller.searcher_eagle import EagleCatalogSearcher
+from eagleliz.local.searcher_eagle import EagleCatalogSearcher
 
 
 @eagleliz_app.command()

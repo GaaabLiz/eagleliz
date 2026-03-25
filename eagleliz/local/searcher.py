@@ -18,11 +18,11 @@ from rich.console import Console
 from rich.table import Table
 from tqdm import tqdm
 
-from eagleliz.controller.searcher_eagle import EagleCatalogSearcher
-from eagleliz.controller.searcher_os import FileSystemSearcher
+from eagleliz.local.searcher_eagle import EagleCatalogSearcher
+from eagleliz.local.searcher_os import FileSystemSearcher
 
 
-class MediaSearcher:
+class EagleLocalSearcher:
     """
     Utility class to search for media files in a directory, optionally integrating with Eagle library
     or filtering by regex. Acts as a facade for specific search strategies.
@@ -31,7 +31,7 @@ class MediaSearcher:
     def __init__(self, path: str):
         """
         Initialize the searcher with a root path.
-        
+
         Args:
             path (str): The absolute filesystem directory path to execute the search mapping against.
         """
@@ -44,7 +44,7 @@ class MediaSearcher:
     def get_result(self) -> MediaListResult:
         """
         Returns the collected internal search tracking mapping array results.
-        
+
         Returns:
             MediaListResult: The globally formatted structural object payload container.
         """
@@ -53,7 +53,7 @@ class MediaSearcher:
     def run_search_system(self, exclude: str = None, dry: bool = False):
         """
         Runs a standard filesystem structural matching search strategy recursively natively.
-        
+
         Args:
             exclude (str): Optional Python regex pattern matching string evaluating exclusion metrics.
             dry (bool): Triggers dry-run preview simulation without applying mutating callbacks.
@@ -64,7 +64,7 @@ class MediaSearcher:
     def run_search_eagle(self, eagletag: Optional[List[str]] = None):
         """
         Runs a targeted native Eagle structured payload dictionary mapping search.
-        
+
         Args:
             eagletag (Optional[List[str]]): An array of strings representing target explicit tags.
         """
@@ -75,7 +75,7 @@ class MediaSearcher:
     def printAcceptedAsTable(self, sort_index: int = 0):
         """
         Prints the accepted output files globally array formatted using rich tables.
-        
+
         Args:
             sort_index (int): Output table mapped ordering header column targeted sort value.
         """
@@ -85,7 +85,7 @@ class MediaSearcher:
     def printRejectedAsTable(self, sort_index: int = 0):
         """
         Prints the rejected logical mismatch output items output table natively mapped.
-        
+
         Args:
             sort_index (int): Output table mapped ordering header column targeted sort value.
         """
@@ -95,7 +95,7 @@ class MediaSearcher:
     def printErroredAsTable(self, sort_index: int = 0):
         """
         Prints the internally failed native mapping parsing exceptions in an error-formatted layout structure table safely.
-        
+
         Args:
             sort_index (int): Output table mapped ordering header column targeted sort value.
         """
@@ -109,10 +109,10 @@ class MediaSearcher:
         """
         self.generated_xmps_list = []
         self._temp_xmp_dir = tempfile.mkdtemp(prefix="pyliz_xmp_")
-        
+
         # Use tqdm for progress if there are items
         accepted_items = [i for i in self._result.accepted if i.media and not i.media.has_xmp_sidecar()]
-        
+
         if not accepted_items:
              self._console.print("[green]No missing XMP files needed generation.[/green]\n")
              return
@@ -121,32 +121,32 @@ class MediaSearcher:
         for idx, item in enumerate(pbar):
             try:
                 pbar.set_description(f"Generating XMP for {item.media.file_name}")
-                
+
                 # Create a unique subdirectory for this specific media file's XMP to avoid filename collisions
                 item_temp_dir = os.path.join(self._temp_xmp_dir, str(idx))
                 os.makedirs(item_temp_dir, exist_ok=True)
-                
+
                 # Construct correct filename in temp dir
                 media_path = Path(item.path)
                 xmp_name = f"{media_path.stem}.xmp"
                 temp_path = os.path.join(item_temp_dir, xmp_name)
-                
+
                 handler = MetadataHandler(item.path)
                 if handler.generate_xmp(temp_path):
                     # Set the creation date in the XMP file
                     creation_date = item.media.creation_date_from_exif_or_file_or_sidecar
                     handler.set_creation_date(creation_date, temp_path)
-                    
+
                     # If Eagle metadata is available, append it to the generated XMP
                     if item.media.eagle_metadata:
                         handler.append_eagle_to_xmp(item.media.eagle_metadata, temp_path)
-                        
+
                     # Attach to LizMedia
                     item.media.attach_sidecar_file(Path(temp_path))
                     self.generated_xmps_list.append((item.media.file_name, temp_path))
                 else:
                     self._console.print(f"[red]Failed to generate XMP for {item.media.file_name} (check logs/exiftool)[/red]")
-                
+
             except Exception as e:
                 self._console.print(f"[red]Error processing XMP for {item.media.file_name}: {e}[/red]")
 
@@ -155,10 +155,10 @@ class MediaSearcher:
             table = Table(title=f"Generated Missing XMP Files ({len(self.generated_xmps_list)})")
             table.add_column("Media Filename", style="cyan")
             table.add_column("Generated XMP Path", style="magenta")
-            
+
             for media_name, xmp_path in self.generated_xmps_list:
                 table.add_row(media_name, xmp_path)
-            
+
             self._console.print(table)
             print("\n")
 
@@ -191,3 +191,4 @@ class MediaSearcher:
                 # print(f"[dim]Removed temporary directory: {self._temp_xmp_dir}[/dim]")
             except OSError as e:
                 print(f"[red]Error removing temp dir {self._temp_xmp_dir}: {e}[/red]")
+

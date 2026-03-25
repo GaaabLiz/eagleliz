@@ -9,7 +9,7 @@ from rich import print
 from rich.console import Console
 
 from eagleliz import eagleliz_app
-from eagleliz.controller.searcher import MediaSearcher
+from eagleliz.local.searcher import EagleLocalSearcher
 from eagleliz.controller.media_org import MediaOrganizer
 from eagleliz.model.organizer import OrganizerOptions
 
@@ -177,7 +177,7 @@ def organizer(
     typer.echo("─" * 50 + "\n")
 
     # Searching file to organize
-    searcher = MediaSearcher(path)
+    searcher = EagleLocalSearcher(path)
     if eaglecatalog:
         searcher.run_search_eagle(eagletag)
     else:
