@@ -1,3 +1,30 @@
+## [0.0.27] - 2026-03-25
+
+### 🚀 Features
+
+- Add eagleapi and eagleapi_async modules; rename eaglelizapi to eagleapi
+- Add new text and markdown files; create backup JSON
+- Refactored API clients to extract models, share logic, and separate async implementation.
+- Add new text, markdown, and SVG files for testing
+- Enhance documentation for Eagle API clients with detailed module and method descriptions
+- Add new text, markdown, and SVG files for testing
+- Add new text, markdown, and SVG files for testing
+- Remove unused imports and clean up code in multiple files
+- Refactored classes structure and changed some class names
+- Add extended asynchronous Eagle API client with file upload support
+
+### 🐛 Bug Fixes
+
+- Update import paths for EagleAPI modules
+- Update import path for EagleAPI module
+
+### 💼 Other
+
+- Bump version to 0.0.27
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
 ## [0.0.26] - 2026-03-18
 
 ### 🚀 Features
