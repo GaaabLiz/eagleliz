@@ -9,6 +9,7 @@ the main `EagleAPI` client class.
 from eagleliz.api._shared import EagleAPIError
 from eagleliz.api.eagleapi import EagleAPI
 from eagleliz.api.eagleapi_async import AsyncEagleAPI
+from eagleliz.api.eagleapi_async_extended import AsynchEagleApiExtended
 from eagleliz.model.api import (
 	ApplicationInfo,
 	EagleFolder,
@@ -20,6 +21,7 @@ from eagleliz.model.api import (
 
 __all__ = [
 	"ApplicationInfo",
+	"AsynchEagleApiExtended",
 	"AsyncEagleAPI",
 	"EagleAPI",
 	"EagleAPIError",

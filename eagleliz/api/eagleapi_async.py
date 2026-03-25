@@ -234,6 +234,39 @@ class AsyncEagleAPI(EagleAPIBase):
         data = await self._make_request("/folder/listRecent")
         return parse_folder_list(data)
 
+    async def _add_item_from_url_request(
+        self,
+        *,
+        url: str,
+        name: str,
+        website: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        star: Optional[int] = None,
+        annotation: Optional[str] = None,
+        modificationTime: Optional[int] = None,
+        folderId: Optional[str] = None,
+        headers: Optional[dict[str, str]] = None,
+    ) -> Any:
+        """Internal helper for ``POST /api/item/addFromURL``.
+
+        Returns the raw ``data`` payload from Eagle so higher-level callers can
+        decide whether to only acknowledge success or extract returned IDs.
+        """
+        payload = compact_dict(
+            {
+                "url": url,
+                "name": name,
+                "website": website,
+                "tags": tags,
+                "star": star,
+                "annotation": annotation,
+                "modificationTime": modificationTime,
+                "folderId": folderId,
+                "headers": headers,
+            }
+        )
+        return await self._make_request("/item/addFromURL", method="POST", data=payload)
+
     async def add_item_from_url(
         self,
         url: str,
@@ -253,20 +286,17 @@ class AsyncEagleAPI(EagleAPIBase):
         same casing used by Eagle's request schema for easier cross-reference
         with the upstream documentation.
         """
-        payload = compact_dict(
-            {
-                "url": url,
-                "name": name,
-                "website": website,
-                "tags": tags,
-                "star": star,
-                "annotation": annotation,
-                "modificationTime": modificationTime,
-                "folderId": folderId,
-                "headers": headers,
-            }
+        await self._add_item_from_url_request(
+            url=url,
+            name=name,
+            website=website,
+            tags=tags,
+            star=star,
+            annotation=annotation,
+            modificationTime=modificationTime,
+            folderId=folderId,
+            headers=headers,
         )
-        await self._make_request("/item/addFromURL", method="POST", data=payload)
         return True
 
     async def add_items_from_urls(self, items: list[EagleItemURLPayload], folder_id: Optional[str] = None) -> bool:
