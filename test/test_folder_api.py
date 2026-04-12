@@ -3,12 +3,13 @@ import uuid
 import time
 from eagleliz.api.eagleapi import EagleFolder, EagleAPIError
 
+
 class TestFolderAPI:
     @pytest.fixture
     def root_folder(self, api):
         folder_name = f"RootFolder_{uuid.uuid4().hex[:6]}"
         f = api.create_folder(folder_name)
-        time.sleep(0.5) # Allow Eagle backend to safely commit the OS file write
+        time.sleep(0.5)  # Allow Eagle backend to safely commit the OS file write
         yield f
         # Cleanup
         try:
@@ -37,7 +38,9 @@ class TestFolderAPI:
         assert renamed.name == new_name
         assert renamed.id == root_folder.id
 
-    @pytest.mark.parametrize("color", ["red", "orange", "yellow", "green", "aqua", "blue", "purple", "pink"])
+    @pytest.mark.parametrize(
+        "color", ["red", "orange", "yellow", "green", "aqua", "blue", "purple", "pink"]
+    )
     def test_update_folder_colors(self, api, root_folder, color):
         updated = api.update_folder(root_folder.id, new_color=color)
         assert updated.id == root_folder.id
@@ -46,17 +49,23 @@ class TestFolderAPI:
         desc = "This is a Pytest automated description."
         updated = api.update_folder(root_folder.id, new_description=desc)
         # Verify it landed either in defined props or extra_data
-        actual_desc = getattr(updated, "description", None) or updated._extra_data.get("description", "")
+        actual_desc = getattr(updated, "description", None) or updated._extra_data.get(
+            "description", ""
+        )
         assert actual_desc == desc
 
     def test_update_folder_combined(self, api, root_folder):
         name = "CombinedUpdate"
         desc = "CombinedDesc"
         color = "aqua"
-        updated = api.update_folder(root_folder.id, new_name=name, new_description=desc, new_color=color)
+        updated = api.update_folder(
+            root_folder.id, new_name=name, new_description=desc, new_color=color
+        )
         time.sleep(0.5)
         assert updated.name == name
-        actual_desc = getattr(updated, "description", None) or updated._extra_data.get("description", "")
+        actual_desc = getattr(updated, "description", None) or updated._extra_data.get(
+            "description", ""
+        )
         assert actual_desc == desc
 
     def test_rename_nonexistent_folder_fails(self, api):

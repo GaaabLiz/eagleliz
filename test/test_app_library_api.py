@@ -1,5 +1,6 @@
 import pytest
 
+
 class TestAppAPI:
     def test_get_application_info(self, api):
         info = api.get_application_info()
@@ -8,6 +9,7 @@ class TestAppAPI:
         assert hasattr(info, "execPath")
         # buildVersion might be None in some Eagle releases, just ensure it's a known attribute
         assert hasattr(info, "buildVersion")
+
 
 class TestLibraryAPI:
     def test_get_library_info(self, api):
@@ -30,7 +32,7 @@ class TestLibraryAPI:
         history = api.get_library_history()
         if not history:
             pytest.skip("No library history to extract current path from.")
-            
+
         current_library = history[0]
         icon_bytes = api.get_library_icon(current_library)
         assert isinstance(icon_bytes, bytes)

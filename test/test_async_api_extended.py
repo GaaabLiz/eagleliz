@@ -49,7 +49,9 @@ def test_add_item_from_file_uses_helpers(monkeypatch):
     monkeypatch.setattr(client, "_build_data_uri", fake_build_data_uri)
     monkeypatch.setattr(client, "_post_to_eagle", fake_post)
 
-    result = asyncio.run(client.add_item_from_file("/tmp/photo.png", "photo", ["tag-a", "tag-b"]))
+    result = asyncio.run(
+        client.add_item_from_file("/tmp/photo.png", "photo", ["tag-a", "tag-b"])
+    )
 
     assert result == "item-123"
     assert captured == {
@@ -64,7 +66,9 @@ def test_post_to_eagle_calls_expected_endpoint_and_returns_string_id(monkeypatch
     client = AsynchEagleApiExtended()
     captured: dict[str, object] = {}
 
-    async def fake_make_request(endpoint: str, *, method: str = "GET", data=None, params=None):
+    async def fake_make_request(
+        endpoint: str, *, method: str = "GET", data=None, params=None
+    ):
         captured["endpoint"] = endpoint
         captured["method"] = method
         captured["data"] = data
@@ -73,22 +77,29 @@ def test_post_to_eagle_calls_expected_endpoint_and_returns_string_id(monkeypatch
 
     monkeypatch.setattr(client, "_make_request", fake_make_request)
 
-    result = asyncio.run(client._post_to_eagle("data:image/png;base64,abc", "Image", ["a"]))
+    result = asyncio.run(
+        client._post_to_eagle("data:image/png;base64,abc", "Image", ["a"])
+    )
 
     assert result == "new-item-id"
     assert captured["endpoint"] == "/item/addFromURL"
     assert captured["method"] == "POST"
-    assert captured["data"] == {"url": "data:image/png;base64,abc", "name": "Image", "tags": ["a"]}
+    assert captured["data"] == {
+        "url": "data:image/png;base64,abc",
+        "name": "Image",
+        "tags": ["a"],
+    }
 
 
 def test_post_to_eagle_wraps_eagle_api_errors(monkeypatch):
     client = AsynchEagleApiExtended()
 
-    async def fake_make_request(endpoint: str, *, method: str = "GET", data=None, params=None):
+    async def fake_make_request(
+        endpoint: str, *, method: str = "GET", data=None, params=None
+    ):
         raise EagleAPIError("boom")
 
     monkeypatch.setattr(client, "_make_request", fake_make_request)
 
     with pytest.raises(RuntimeError, match="Eagle API request failed: boom"):
         asyncio.run(client._post_to_eagle("data:image/png;base64,abc", "Image", []))
-

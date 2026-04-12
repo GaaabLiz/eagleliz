@@ -6,18 +6,22 @@ from eagleliz.api.eagleapi import EagleAPI, EagleAPIError
 # Use the catalog provided by the user in the root directory
 TEST_CATALOG_PATH = Path(__file__).parent.parent / "TestCatalog.library"
 
+
 @pytest.fixture(scope="session")
 def api():
     """Provides a global EagleAPI client instance for all tests."""
     client = EagleAPI()
-    
+
     # Optional: Verify Eagle is reachable before running suite
     try:
         client.get_application_info()
     except EagleAPIError as e:
-        pytest.fail(f"Eagle API is unreachable. Tests require Eagle.cool to be running with TestCatalog.library. Error: {e}")
-        
+        pytest.fail(
+            f"Eagle API is unreachable. Tests require Eagle.cool to be running with TestCatalog.library. Error: {e}"
+        )
+
     return client
+
 
 @pytest.fixture(scope="session")
 def test_root_folder(api):
@@ -25,7 +29,7 @@ def test_root_folder(api):
     folder_name = f"Pytest_Root_{int(time.time())}"
     folder = api.create_folder(folder_name)
     yield folder
-    
+
     # Teardown: Trash the entire test folder and its contents
     # Eagle API doesn't have an explicit 'trash folder' endpoint, but we can list items inside
     # and trash them, then maybe we leave the folder. Let's just trash all items inside it.
@@ -33,20 +37,34 @@ def test_root_folder(api):
     if items:
         api.move_to_trash(item_ids=[item.id for item in items])
 
+
 def verify_item_in_catalog(item_id, expected_ext):
     """
     Helper to verify an item physically exists in TestCatalog.library/images/{id}.info/{id}.{ext}
     """
     if not TEST_CATALOG_PATH.exists():
-        pytest.skip(f"TestCatalog.library not found at {TEST_CATALOG_PATH}. Skipping filesystem verification.")
-        
+        pytest.skip(
+            f"TestCatalog.library not found at {TEST_CATALOG_PATH}. Skipping filesystem verification."
+        )
+
     img_dir = TEST_CATALOG_PATH / "images" / f"{item_id}.info"
-    assert img_dir.exists() and img_dir.is_dir(), f"Item directory not found in catalog: {img_dir}"
-    
+    assert img_dir.exists() and img_dir.is_dir(), (
+        f"Item directory not found in catalog: {img_dir}"
+    )
+
     # The actual file
     ext_lower = expected_ext.lower()
-    matching_files = [f for f in img_dir.iterdir() if f.is_file() and f.suffix.lower() == f".{ext_lower}" and not f.name.endswith('_thumbnail.png')]
-    assert len(matching_files) > 0, f"No file with extension {expected_ext} found in {img_dir}"
+    matching_files = [
+        f
+        for f in img_dir.iterdir()
+        if f.is_file()
+        and f.suffix.lower() == f".{ext_lower}"
+        and not f.name.endswith("_thumbnail.png")
+    ]
+    assert len(matching_files) > 0, (
+        f"No file with extension {expected_ext} found in {img_dir}"
+    )
+
 
 def wait_for_condition(condition_func, timeout=15, interval=0.5):
     """
@@ -59,13 +77,18 @@ def wait_for_condition(condition_func, timeout=15, interval=0.5):
         time.sleep(interval)
     return False
 
-def wait_for_items(api, keyword=None, tags=None, folders=None, expected_count=1, timeout=15):
+
+def wait_for_items(
+    api, keyword=None, tags=None, folders=None, expected_count=1, timeout=15
+):
     """
     Waits for a specific number of items to appear in Eagle.
     """
-    def check():
-        items = api.get_items(keyword=keyword, tags=tags, folders=folders, limit=max(expected_count, 10))
-        return len(items) >= expected_count
-        
-    return wait_for_condition(check, timeout=timeout)
 
+    def check():
+        items = api.get_items(
+            keyword=keyword, tags=tags, folders=folders, limit=max(expected_count, 10)
+        )
+        return len(items) >= expected_count
+
+    return wait_for_condition(check, timeout=timeout)

@@ -76,7 +76,9 @@ def test_async_folder_and_item_lifecycle(api):
         renamed = await client.rename_folder(folder.id, f"{folder_name}_renamed")
         assert renamed.id == folder.id
 
-        updated_folder = await client.update_folder(folder.id, new_description="async test folder", new_color="blue")
+        updated_folder = await client.update_folder(
+            folder.id, new_description="async test folder", new_color="blue"
+        )
         assert updated_folder.id == folder.id
 
         with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as handle:
@@ -95,7 +97,9 @@ def test_async_folder_and_item_lifecycle(api):
             assert added is True
 
             await asyncio.sleep(1)
-            items = await client.get_items(keyword=item_name, limit=1, folders=[folder.id])
+            items = await client.get_items(
+                keyword=item_name, limit=1, folders=[folder.id]
+            )
             assert len(items) == 1
 
             item = items[0]
@@ -129,5 +133,3 @@ def test_async_folder_and_item_lifecycle(api):
                 os.remove(temp_path)
 
     asyncio.run(scenario())
-
-
