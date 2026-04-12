@@ -36,4 +36,36 @@ dev = [
     "pytest>=9.0.2",
     "ruff>=0.13.1",
     "ty>=0.0.1a21",
+    "mypy>=1.20.0",
+    "types-requests>=2.33.0.20260408",
+    "types-tqdm>=4.67.3.20260408",
 ]
+
+[tool.ruff]
+# Exclude scratch and legacy directories from linting/formatting
+exclude = [
+    "temp",
+]
+
+[tool.ruff.lint]
+# Suppress F401 (unused import) in __init__.py files where imports are used for registration/re-export
+# Suppress E402 (import not at top) in eagleliz/__init__.py due to circular import workarounds
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+"eagleliz/__init__.py" = ["E402"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "pylizlib.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+norecursedirs = ["temp", "temp/old"]
