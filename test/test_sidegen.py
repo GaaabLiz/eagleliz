@@ -6,7 +6,7 @@ from conftest import TEST_CATALOG_PATH
 runner = CliRunner()
 
 
-def test_sidegen_dry_run():
+def test_sidegen_dry_run(dynamic_test_items):
     if not TEST_CATALOG_PATH.exists():
         pytest.skip("TestCatalog.library not found")
 
@@ -28,8 +28,8 @@ def test_sidegen_invalid_path():
     assert "Error: path '/non/existent/path' does not exist" in result.output
 
 
-@pytest.mark.parametrize("tags", [["BatchURL"], ["NonExistentTag"]])
-def test_sidegen_with_tags_dry(tags):
+@pytest.mark.parametrize("tags", [["DynamicTest"], ["NonExistentTag"]])
+def test_sidegen_with_tags_dry(tags, dynamic_test_items):
     if not TEST_CATALOG_PATH.exists():
         pytest.skip("TestCatalog.library not found")
 

@@ -6,7 +6,7 @@ from eagleliz.local.searcher_os import FileSystemSearcher
 from conftest import TEST_CATALOG_PATH
 
 
-def test_eagle_catalog_searcher_basic():
+def test_eagle_catalog_searcher_basic(dynamic_test_items):
     if not TEST_CATALOG_PATH.exists():
         pytest.skip("TestCatalog.library not found")
 
@@ -14,24 +14,25 @@ def test_eagle_catalog_searcher_basic():
     searcher.search()
 
     result = searcher.get_result()
-    assert len(result.accepted) > 0
+    # We expect at least the newly created dynamic items
+    assert len(result.accepted) >= len(dynamic_test_items)
     for item in result.accepted:
         assert item.media is not None
         assert item.media.eagle_metadata is not None
 
 
-def test_eagle_catalog_searcher_with_tags():
+def test_eagle_catalog_searcher_with_tags(dynamic_test_items):
     if not TEST_CATALOG_PATH.exists():
         pytest.skip("TestCatalog.library not found")
 
     searcher = EagleCatalogSearcher(str(TEST_CATALOG_PATH))
-    # Using tag we know exists from previous inspection
-    searcher.search(eagletag=["BatchURL"])
+    # Using the tag assigned in dynamic_test_items fixture
+    searcher.search(eagletag=["DynamicTest"])
 
     result = searcher.get_result()
     assert len(result.accepted) > 0
     for item in result.accepted:
-        assert "BatchURL" in item.media.eagle_metadata.tags
+        assert "DynamicTest" in item.media.eagle_metadata.tags
 
 
 def test_filesystem_searcher_basic():

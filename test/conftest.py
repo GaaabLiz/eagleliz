@@ -2,6 +2,7 @@ import pytest
 import time
 from pathlib import Path
 from eagleliz.api.eagleapi import EagleAPI, EagleAPIError
+from eagleliz.model.api import EagleItemURLPayload
 
 # Use the catalog provided by the user in the root directory
 TEST_CATALOG_PATH = Path(__file__).parent.parent / "TestCatalog.library"
@@ -36,6 +37,58 @@ def test_root_folder(api):
     items = api.get_items(limit=10000, folders=[folder.id])
     if items:
         api.move_to_trash(item_ids=[item.id for item in items])
+
+
+@pytest.fixture(scope="session")
+def dynamic_test_items(api, test_root_folder):
+    """
+    Downloads random images from picsum.photos and adds them to Eagle.
+    Cleans them up after tests.
+    """
+    num_items = 5
+    items_to_add = []
+    for i in range(num_items):
+        items_to_add.append(
+            EagleItemURLPayload(
+                url=f"https://picsum.photos/seed/{int(time.time()) + i}/800/600.jpg",
+                name=f"Dynamic_Test_Image_{i}",
+                tags=["DynamicTest"],
+            )
+        )
+
+    # Upload to Eagle
+    api.add_items_from_urls(items_to_add, folder_id=test_root_folder.id)
+
+    # Wait for items to appear in Eagle (metadata sync)
+    if not wait_for_items(
+        api, folders=[test_root_folder.id], expected_count=num_items, timeout=30
+    ):
+        pytest.fail("Timeout waiting for dynamic test items to appear in Eagle.")
+
+    # Get the actual items with their IDs
+    created_items = api.get_items(folders=[test_root_folder.id], limit=num_items)
+
+    # Now we need to wait for the files to actually exist on disk in the library
+    # because the Searcher/Reader read directly from the filesystem.
+    for item in created_items:
+
+        def check_file():
+            img_dir = TEST_CATALOG_PATH / "images" / f"{item.id}.info"
+            if not img_dir.exists():
+                return False
+            # Check if any non-json/non-ext file exists (the actual image)
+            return any(
+                f.suffix.lower() in [".jpg", ".png", ".jpeg"]
+                for f in img_dir.iterdir()
+                if not f.name.endswith(".json")
+            )
+
+        if not wait_for_condition(check_file, timeout=20):
+            pytest.fail(f"Timeout waiting for item {item.id} to appear on disk.")
+
+    yield created_items
+
+    # Cleanup is handled by test_root_folder (it moves everything to trash)
 
 
 def verify_item_in_catalog(item_id, expected_ext):
