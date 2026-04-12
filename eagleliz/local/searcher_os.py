@@ -4,6 +4,7 @@ Standard filesystem search strategy.
 Scans the filesystem recursively for media files, applying regex exclusions
 and validating files as LizMedia items.
 """
+
 import os
 import re
 from pathlib import Path
@@ -11,30 +12,36 @@ from pathlib import Path
 import typer
 from tqdm import tqdm
 
-from pylizlib.media.lizmedia import LizMedia, MediaListResult, LizMediaSearchResult, MediaStatus
+from pylizlib.media.lizmedia import (
+    LizMedia,
+    MediaListResult,
+    LizMediaSearchResult,
+    MediaStatus,
+)
 
 
 class FileSystemSearcher:
     """
     Strategy class to search for media files in the file system.
     """
+
     def __init__(self, path: str):
         """
         Initialize with the root path to scan.
-        
+
         Args:
             path (str): System directory path to start the recursive file traversal scan.
         """
         self.path = path
 
-    def search(self, exclude: str = None, dry: bool = False) -> MediaListResult:
+    def search(self, exclude: str | None = None, dry: bool = False) -> MediaListResult:
         """
         Performs a recursive scan of the filesystem.
-        
+
         Args:
             exclude (str): Optional regex pattern string to exclude certain matching files or directories.
             dry (bool): If True, accurately simulates the scan logic and logs exclusions without generating side effects.
-            
+
         Returns:
             MediaListResult: A validated structural representation containing arrays of accepted and rejected media items.
         """
@@ -54,34 +61,37 @@ class FileSystemSearcher:
                 for file in files:
                     file_path = Path(root) / file
                     pbar.set_description(f"Scanning {file}")
-                    
+
                     # Check exclude pattern
                     if exclude_regex and exclude_regex.search(file):
                         if dry:
                             tqdm.write(f"  Skipping (regex match): {file}")
-                        result.rejected.append(LizMediaSearchResult(
-                            status=MediaStatus.REJECTED,
-                            path=file_path,
-                            media=None,
-                            reason="Rejected by regex pattern"
-                        ))
+                        result.rejected.append(
+                            LizMediaSearchResult(
+                                status=MediaStatus.REJECTED,
+                                path=file_path,
+                                media=None,
+                                reason="Rejected by regex pattern",
+                            )
+                        )
                         pbar.update(1)
                         continue
 
                     try:
                         liz_media = LizMedia(file_path)
-                        result.accepted.append(LizMediaSearchResult(
-                            status=MediaStatus.ACCEPTED,
-                            path=file_path,
-                            media=liz_media
-                        ))
+                        result.accepted.append(
+                            LizMediaSearchResult(
+                                status=MediaStatus.ACCEPTED,
+                                path=file_path,
+                                media=liz_media,
+                            )
+                        )
                     except ValueError:
                         # Not a media file, skip silently
                         pass
-                    
-                    pbar.update(1)
-            
-            pbar.set_description("Scanning complete")
-        
-        return result
 
+                    pbar.update(1)
+
+            pbar.set_description("Scanning complete")
+
+        return result

@@ -39,7 +39,9 @@ class EagleAPIBase:
         token: Optional API token appended to requests when provided.
     """
 
-    def __init__(self, host: str = "localhost", port: int = 41595, token: Optional[str] = None):
+    def __init__(
+        self, host: str = "localhost", port: int = 41595, token: Optional[str] = None
+    ):
         """Initialize a client against a local Eagle instance.
 
         Args:
@@ -132,7 +134,9 @@ def build_request_url(
     return url
 
 
-def build_json_payload(payload: Optional[dict[str, Any]], token: Optional[str] = None) -> Optional[dict[str, Any]]:
+def build_json_payload(
+    payload: Optional[dict[str, Any]], token: Optional[str] = None
+) -> Optional[dict[str, Any]]:
     """Build a JSON payload for ``POST`` requests.
 
     The input mapping is copied so the caller's dictionary is never mutated. If
@@ -193,11 +197,15 @@ def parse_api_response(result: Any, *, url: str) -> Any:
             status is not ``"success"``.
     """
     if not isinstance(result, dict):
-        raise EagleAPIError(f"Unexpected response type from Eagle API at {url}: {type(result).__name__}")
+        raise EagleAPIError(
+            f"Unexpected response type from Eagle API at {url}: {type(result).__name__}"
+        )
 
     status = result.get("status")
     if status != "success":
-        message = result.get("message") or result.get("error") or "Unknown Eagle API error"
+        message = (
+            result.get("message") or result.get("error") or "Unknown Eagle API error"
+        )
         raise EagleAPIError(f"API returned status {status!r}: {message}")
 
     return result.get("data", {})
@@ -288,4 +296,3 @@ def parse_item_list(data: Any) -> list[EagleItem]:
 def parse_library_info(data: dict[str, Any]) -> LibraryInfo:
     """Convert raw library metadata into a ``LibraryInfo`` model."""
     return LibraryInfo.from_dict(data)
-

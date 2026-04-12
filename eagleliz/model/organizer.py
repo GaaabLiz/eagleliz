@@ -3,6 +3,7 @@ Domain models for the media organizer.
 
 Contains dataclasses and structures representing organization results and configuration options.
 """
+
 from dataclasses import dataclass, field
 from itertools import count
 from pathlib import Path
@@ -13,11 +14,12 @@ from pylizlib.media.lizmedia import LizMedia
 # Global counter for OrganizerResult index
 _result_counter = count(1)
 
+
 @dataclass
 class OrganizerResult:
     """
     Represents the result of an single file organization workflow step.
-    
+
     Attributes:
         success (bool): Whether the file was properly copied, moved or parsed.
         source_file (Path): Reference to the original file to act upon computationally.
@@ -26,6 +28,7 @@ class OrganizerResult:
         destination_path (Optional[str]): Pathing destination targeting after organization.
         index (int): Auto-generating counter identifying the exact index of this sequence block.
     """
+
     success: bool
     source_file: Path
     media: Optional[LizMedia] = None
@@ -43,7 +46,7 @@ class OrganizerResult:
 class OrganizerOptions:
     """
     Configuration options for the media organization process defining boolean flags.
-    
+
     Attributes:
         no_progress (bool): If True, hides CLI rich progress bar wrappers implicitly.
         daily (bool): Flag defining daily categorization structuring mapping format structures.
@@ -53,6 +56,7 @@ class OrganizerOptions:
         dry_run (bool): Evaluates workflow pipelines cleanly without executing destructive filesystem saves.
         exif (bool): Leverages EXIF internal media file tags as source of truth for generation metadata creation bounds.
     """
+
     no_progress: bool = False
     daily: bool = False
     copy: bool = False

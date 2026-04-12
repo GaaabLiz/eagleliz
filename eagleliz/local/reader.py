@@ -4,6 +4,7 @@ Core EagleLiz reader functionality.
 This module provides the classes for scanning and parsing elements
 within an Eagle.cool library folder.
 """
+
 import base64
 import json
 from pathlib import Path
@@ -39,7 +40,7 @@ class EagleLocalReader:
         self,
         catalogue: Path,
         include_deleted: bool = False,
-        file_types: List[FileType] = None,
+        file_types: Optional[List[FileType]] = None,
         filter_tags: Optional[List[str]] = None,
         include_base64: bool = False,
     ):
@@ -55,7 +56,18 @@ class EagleLocalReader:
         """
         self.catalogue = catalogue
         self.include_deleted = include_deleted
-        self.file_types = file_types if file_types else [FileType.IMAGE, FileType.VIDEO, FileType.AUDIO]
+        self.file_types = (
+            file_types
+            if file_types
+            else [
+                FileType.IMAGE,
+                FileType.VIDEO,
+                FileType.AUDIO,
+                FileType.BOOKMARK,
+                FileType.TEXT,
+                FileType.DOCUMENT,
+            ]
+        )
         self.filter_tags = filter_tags
         self.include_base64 = include_base64
         self.items: List[EagleLocalItem] = []
@@ -74,10 +86,14 @@ class EagleLocalReader:
         images_dir = self.catalogue / "images"
 
         if not images_dir.exists():
-            raise ValueError(f"Eagle catalogue 'images' directory not found: {images_dir}")
+            raise ValueError(
+                f"Eagle catalogue 'images' directory not found: {images_dir}"
+            )
 
         folders = list(images_dir.iterdir())
-        for folder in tqdm(folders, desc="Scanning Eagle Library folders", unit="folders"):
+        for folder in tqdm(
+            folders, desc="Scanning Eagle Library folders", unit="folders"
+        ):
             if folder.is_dir():
                 self.scanned_folders_count += 1
                 result = self.__handle_eagle_folder(folder)
@@ -120,23 +136,38 @@ class EagleLocalReader:
         try:
             detected_type = get_file_type(str(media_file))
             if detected_type not in self.file_types:
-                self.items_skipped.append((eagle_item, f"File type not requested: {detected_type.name}"))
+                self.items_skipped.append(
+                    (eagle_item, f"File type not requested: {detected_type.name}")
+                )
                 return None
         except ValueError:
-            self.items_skipped.append((eagle_item, f"Unsupported file type: {media_file.suffix}"))
+            print(
+                f"DEBUG: Unsupported file type for {media_file.name}: {media_file.suffix}"
+            )
+            self.items_skipped.append(
+                (eagle_item, f"Unsupported file type: {media_file.suffix}")
+            )
             return None
 
         # Check tags
         if self.filter_tags:
-            if not any(tag in metadata_obj.tags for tag in self.filter_tags):
+            item_tags = metadata_obj.tags if metadata_obj.tags else []
+            if not any(tag in item_tags for tag in self.filter_tags):
+                print(
+                    f"DEBUG: Tag mismatch for {media_file.name}: {item_tags} vs {self.filter_tags}"
+                )
                 self.items_skipped.append((eagle_item, "Tag mismatch"))
                 return None
+
+        print(f"DEBUG: Accepted item: {media_file.name} (Type: {detected_type.name})")
 
         # Read base64 content if requested
         if self.include_base64:
             try:
                 with open(media_file, "rb") as f:
-                    eagle_item.base64_content = base64.b64encode(f.read()).decode("utf-8")
+                    eagle_item.base64_content = base64.b64encode(f.read()).decode(
+                        "utf-8"
+                    )
             except Exception as e:
                 print(f"[red]Error reading/encoding file {media_file}: {e}[/red]")
                 # If reading fails, we might want to skip the item or just log it.
@@ -147,7 +178,9 @@ class EagleLocalReader:
 
         return eagle_item
 
-    def __scan_folder_contents(self, folder: Path) -> Tuple[Optional[Metadata], Optional[Path], bool]:
+    def __scan_folder_contents(
+        self, folder: Path
+    ) -> Tuple[Optional[Metadata], Optional[Path], bool]:
         """
         Scans strictly within a subfolder to isolate exact logical media file targets.
 
@@ -185,12 +218,6 @@ class EagleLocalReader:
         """
         Determines the main file representation when multiple asset backups overlap in logic.
         Implements strict priority hierarchies for HEIC bounding arrays.
-
-        Args:
-            file_candidates (List[Path]): Remaining files matching target characteristics.
-
-        Returns:
-            Optional[Path]: Narrowed precise representation target layout object.
         """
         if not file_candidates:
             return None
@@ -228,4 +255,3 @@ class EagleLocalReader:
             print(f"[red]Error reading metadata from {file_path}: {e}[/red]")
             self.error_paths.append((folder, f"Error reading metadata: {e}"))
             return None
-

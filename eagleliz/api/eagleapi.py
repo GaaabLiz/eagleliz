@@ -13,7 +13,7 @@ import json
 import logging
 import urllib.error
 import urllib.request
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from eagleliz.api._shared import (
     EagleAPIBase,
@@ -79,8 +79,15 @@ class EagleAPI(EagleAPIBase):
             EagleAPIError: If the request fails at the transport, HTTP or JSON
                 parsing layer, or if Eagle responds with a non-success status.
         """
-        url = build_request_url(self.base_url, endpoint, params=params, token=self.token if method == "GET" else None)
-        payload = build_json_payload(data, token=self.token if method == "POST" else None)
+        url = build_request_url(
+            self.base_url,
+            endpoint,
+            params=params,
+            token=self.token if method == "GET" else None,
+        )
+        payload = build_json_payload(
+            data, token=self.token if method == "POST" else None
+        )
 
         request_kwargs: dict[str, Any] = {"method": method}
         if payload is not None:
@@ -96,18 +103,33 @@ class EagleAPI(EagleAPIBase):
         except urllib.error.HTTPError as exc:
             error_body = exc.read().decode()
             log_url = mask_token(url, self.token)
-            logger.error("HTTP error %s for Eagle API at %s. Body: %s", exc.code, log_url, error_body)
+            logger.error(
+                "HTTP error %s for Eagle API at %s. Body: %s",
+                exc.code,
+                log_url,
+                error_body,
+            )
             raise EagleAPIError(f"HTTP {exc.code} error: {error_body}") from exc
         except urllib.error.URLError as exc:
             log_url = mask_token(url, self.token)
-            logger.error("Failed to connect to Eagle API at %s. Is Eagle running? Error: %s", log_url, exc)
+            logger.error(
+                "Failed to connect to Eagle API at %s. Is Eagle running? Error: %s",
+                log_url,
+                exc,
+            )
             raise EagleAPIError(f"Connection error: {exc}") from exc
         except json.JSONDecodeError as exc:
             log_url = mask_token(url, self.token)
-            logger.error("Failed to parse JSON response from Eagle API at %s. Error: %s", log_url, exc)
+            logger.error(
+                "Failed to parse JSON response from Eagle API at %s. Error: %s",
+                log_url,
+                exc,
+            )
             raise EagleAPIError(f"JSON parse error: {exc}") from exc
 
-    def _read_bytes(self, endpoint: str, *, params: Optional[dict[str, Any]] = None) -> bytes:
+    def _read_bytes(
+        self, endpoint: str, *, params: Optional[dict[str, Any]] = None
+    ) -> bytes:
         """Execute an endpoint that streams raw bytes instead of JSON.
 
         This is currently used for ``GET /api/library/icon``, which the
@@ -117,20 +139,31 @@ class EagleAPI(EagleAPIBase):
         Raises:
             EagleAPIError: If the request cannot be completed successfully.
         """
-        url = build_request_url(self.base_url, endpoint, params=params, token=self.token)
+        url = build_request_url(
+            self.base_url, endpoint, params=params, token=self.token
+        )
         request = urllib.request.Request(url, method="GET")
 
         try:
             with urllib.request.urlopen(request) as response:
-                return response.read()
+                return cast(bytes, response.read())
         except urllib.error.HTTPError as exc:
             error_body = exc.read().decode()
             log_url = mask_token(url, self.token)
-            logger.error("HTTP error %s fetching Eagle binary response at %s. Body: %s", exc.code, log_url, error_body)
+            logger.error(
+                "HTTP error %s fetching Eagle binary response at %s. Body: %s",
+                exc.code,
+                log_url,
+                error_body,
+            )
             raise EagleAPIError(f"HTTP {exc.code} error: {error_body}") from exc
         except urllib.error.URLError as exc:
             log_url = mask_token(url, self.token)
-            logger.error("Failed to connect to Eagle API at %s while fetching bytes. Error: %s", log_url, exc)
+            logger.error(
+                "Failed to connect to Eagle API at %s while fetching bytes. Error: %s",
+                log_url,
+                exc,
+            )
             raise EagleAPIError(f"Connection error: {exc}") from exc
 
     def get_application_info(self) -> ApplicationInfo:
@@ -169,7 +202,9 @@ class EagleAPI(EagleAPIBase):
         Returns:
             ``True`` when Eagle acknowledges the request successfully.
         """
-        self._make_request("/library/switch", method="POST", data={"libraryPath": library_path})
+        self._make_request(
+            "/library/switch", method="POST", data={"libraryPath": library_path}
+        )
         return True
 
     def get_library_icon(self, library_path: str) -> bytes:
@@ -178,9 +213,14 @@ class EagleAPI(EagleAPIBase):
         The official ``GET /api/library/icon`` endpoint takes a ``libraryPath``
         query parameter and streams image bytes directly.
         """
-        return self._read_bytes("/library/icon", params={"libraryPath": library_path})
+        return cast(
+            bytes,
+            self._read_bytes("/library/icon", params={"libraryPath": library_path}),
+        )
 
-    def create_folder(self, folder_name: str, parent_id: Optional[str] = None) -> EagleFolder:
+    def create_folder(
+        self, folder_name: str, parent_id: Optional[str] = None
+    ) -> EagleFolder:
         """Create a folder in the current library.
 
         Args:
@@ -298,7 +338,9 @@ class EagleAPI(EagleAPIBase):
         self._make_request("/item/addFromURL", method="POST", data=payload)
         return True
 
-    def add_items_from_urls(self, items: list[EagleItemURLPayload], folder_id: Optional[str] = None) -> bool:
+    def add_items_from_urls(
+        self, items: list[EagleItemURLPayload], folder_id: Optional[str] = None
+    ) -> bool:
         """Import multiple remote assets in one request.
 
         Wraps ``POST /api/item/addFromURLs``. Using the batch endpoint is the
@@ -337,7 +379,9 @@ class EagleAPI(EagleAPIBase):
         self._make_request("/item/addFromPath", method="POST", data=payload)
         return True
 
-    def add_items_from_paths(self, items: list[EagleItemPathPayload], folder_id: Optional[str] = None) -> bool:
+    def add_items_from_paths(
+        self, items: list[EagleItemPathPayload], folder_id: Optional[str] = None
+    ) -> bool:
         """Import multiple local files in one request.
 
         Wraps ``POST /api/item/addFromPaths``.
@@ -385,7 +429,9 @@ class EagleAPI(EagleAPIBase):
         Returns:
             ``True`` when Eagle reports success.
         """
-        self._make_request("/item/moveToTrash", method="POST", data={"itemIds": item_ids})
+        self._make_request(
+            "/item/moveToTrash", method="POST", data={"itemIds": item_ids}
+        )
         return True
 
     def update_item(
@@ -428,7 +474,9 @@ class EagleAPI(EagleAPIBase):
         Per the official documentation, Eagle also refreshes color analysis as
         part of ``POST /api/item/refreshThumbnail``.
         """
-        self._make_request("/item/refreshThumbnail", method="POST", data={"id": item_id})
+        self._make_request(
+            "/item/refreshThumbnail", method="POST", data={"id": item_id}
+        )
         return True
 
     def get_item_info(self, item_id: str) -> EagleItem:

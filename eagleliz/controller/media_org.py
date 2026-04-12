@@ -4,13 +4,14 @@ Core organization logic for media files.
 Handles the movement, copying, and conflict resolution of media files based on
 metadata-derived dates and user options.
 """
+
 import hashlib
 import logging
 import os
 import re
 import shutil
 from pathlib import Path
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 from rich import print
 from rich.console import Console
@@ -28,7 +29,7 @@ class MediaOrganizer:
     """
     Class responsible for organizing media files into a target directory structure
     based on their creation date (from EXIF or filesystem).
-    
+
     Attributes:
         search_results (list[LizMediaSearchResult]): Evaluated array items to process safely natively.
         target (str): Core destination filesystem output directory payload logic mapping array string.
@@ -36,7 +37,12 @@ class MediaOrganizer:
         results (List[OrganizerResult]): Accumulated success states arrays tracking outputs statically natively.
     """
 
-    def __init__(self, search_results: list[LizMediaSearchResult], target: str, options: OrganizerOptions):
+    def __init__(
+        self,
+        search_results: list[LizMediaSearchResult],
+        target: str,
+        options: OrganizerOptions,
+    ):
         self.search_results = search_results
         self.target = target
         self.options = options
@@ -45,22 +51,28 @@ class MediaOrganizer:
 
     def organize(self) -> None:
         """
-    Organize files from `source` into `target` according to the provided options.
-    Results are tracked into local instance state.
-    """
-        logger.info(f"Starting organization. Candidates: {len(self.search_results)}, Target: {self.target}, Options: {self.options}")
-        self.results = [] # Reset results
+        Organize files from `source` into `target` according to the provided options.
+        Results are tracked into local instance state.
+        """
+        logger.info(
+            f"Starting organization. Candidates: {len(self.search_results)}, Target: {self.target}, Options: {self.options}"
+        )
+        self.results = []  # Reset results
 
         # Prepare iteration
-        file_iter = self.search_results if self.options.no_progress else tqdm(self.search_results, unit="files", desc="Organizing")
+        items: Any = self.search_results
+        if not self.options.no_progress:
+            items = tqdm(self.search_results, unit="files", desc="Organizing")
+
+        file_iter = items
 
         for item in file_iter:
             if not item.has_lizmedia():
                 continue
-            
+
             if not self.options.no_progress:
                 file_iter.set_description(f"Organizing {item.media.file_name}")
-            
+
             item_results = self._process_single_item(item)
             self.results.extend(item_results)
 
@@ -73,7 +85,7 @@ class MediaOrganizer:
     def get_results(self) -> List[OrganizerResult]:
         """
         Returns the list of organization results dynamically updated natively securely.
-        
+
         Returns:
             List[OrganizerResult]: Executed array of tracker output state representation payloads strictly.
         """
@@ -82,7 +94,7 @@ class MediaOrganizer:
     def print_results_table(self, sort_index: int = 0):
         """
         Prints a structural table representation mapped graphically of organization results natively.
-        
+
         Args:
             sort_index (int): Index of the native column header element to explicitly sort tables natively by.
                            0=Index, 1=Status, 2=Filename, 3=Extension, 4=Destination, 5=Reason.
@@ -93,50 +105,79 @@ class MediaOrganizer:
 
         with Console().status("[bold cyan]Generating Results Table...[/bold cyan]"):
             print("\n")
-            
+
             # Sorting logic for results
-            sorted_results = list(self.results) # Create a copy to avoid modifying original order if needed elsewhere
-            if sort_index == 0: # Index
+            sorted_results = list(
+                self.results
+            )  # Create a copy to avoid modifying original order if needed elsewhere
+            if sort_index == 0:  # Index
                 sorted_results.sort(key=lambda x: x.index)
-            elif sort_index == 1: # Status
-                sorted_results.sort(key=lambda x: x.success, reverse=True) # Success first
-            elif sort_index == 2: # Filename
+            elif sort_index == 1:  # Status
+                sorted_results.sort(
+                    key=lambda x: x.success, reverse=True
+                )  # Success first
+            elif sort_index == 2:  # Filename
                 sorted_results.sort(key=lambda x: x.source_file.name.lower())
-            elif sort_index == 3: # Extension
+            elif sort_index == 3:  # Extension
                 sorted_results.sort(key=lambda x: x.source_file.suffix.lower())
-            elif sort_index == 4: # Destination
+            elif sort_index == 4:  # Destination
                 sorted_results.sort(key=lambda x: (x.destination_path or "").lower())
-            elif sort_index == 5: # Reason
+            elif sort_index == 5:  # Reason
                 sorted_results.sort(key=lambda x: x.reason.lower())
 
             table = Table(title=f"Organization Results ({len(sorted_results)})")
             table.add_column(f"Index{' *' if sort_index == 0 else ''}", justify="right")
-            table.add_column(f"Status{' *' if sort_index == 1 else ''}", justify="center")
+            table.add_column(
+                f"Status{' *' if sort_index == 1 else ''}", justify="center"
+            )
             table.add_column(f"Filename{' *' if sort_index == 2 else ''}", style="cyan")
-            table.add_column(f"Extension{' *' if sort_index == 3 else ''}", justify="center", style="yellow")
-            table.add_column(f"Destination{' *' if sort_index == 4 else ''}", style="magenta", overflow="fold")
-            table.add_column(f"Reason{' *' if sort_index == 5 else ''}", style="white", overflow="fold")
+            table.add_column(
+                f"Extension{' *' if sort_index == 3 else ''}",
+                justify="center",
+                style="yellow",
+            )
+            table.add_column(
+                f"Destination{' *' if sort_index == 4 else ''}",
+                style="magenta",
+                overflow="fold",
+            )
+            table.add_column(
+                f"Reason{' *' if sort_index == 5 else ''}",
+                style="white",
+                overflow="fold",
+            )
 
             for res in sorted_results:
-                status = "[green]Success[/green]" if res.success else "[red]Failed[/red]"
-                
+                status = (
+                    "[green]Success[/green]" if res.success else "[red]Failed[/red]"
+                )
+
                 # Show path relative to the parent of the output directory for better readability
                 if res.destination_path:
                     try:
-                        dest = os.path.relpath(res.destination_path, Path(self.target).parent)
+                        dest = os.path.relpath(
+                            res.destination_path, Path(self.target).parent
+                        )
                     except ValueError:
                         # Fallback if paths are on different drives or relativity fails
                         dest = res.destination_path
                 else:
                     dest = "N/A"
-                
+
                 ext = res.source_file.suffix.lower()
                 display_ext = ext
-                if ext in ['.xmp', '.aae']:
+                if ext in [".xmp", ".aae"]:
                     display_ext = f"[bold magenta]{ext}[/bold magenta]"
-                    
-                table.add_row(str(res.index), status, res.source_file.name, display_ext, dest, res.reason)
-            
+
+                table.add_row(
+                    str(res.index),
+                    status,
+                    res.source_file.name,
+                    display_ext,
+                    dest,
+                    res.reason,
+                )
+
             Console().print(table)
             print("\n")
 
@@ -144,10 +185,10 @@ class MediaOrganizer:
         """
         Process a single structural media item explicitly tracking internally bound sidecar XML logically natively evaluated dynamically.
         Returns mapped payloads.
-        
+
         Args:
             item (LizMediaSearchResult): Payload representation structure explicitly carrying files and internal payloads securely parsed explicitly.
-            
+
         Returns:
             List[OrganizerResult]: Structured tracking execution arrays logically mapped cleanly parsed dynamically safely natively explicitly dynamically bounds locally natively tracked effectively globally payloads safely tracked logically naturally securely statically safely mapped arrays implicitly naturally safely structured logic logic dynamically globally.
         """
@@ -161,7 +202,14 @@ class MediaOrganizer:
             sanitized_path = self._sanitize_path(file_path)
         except ValueError as e:
             logger.error(f"Rejected invalid path: {file_path}. Reason: {e}")
-            return [OrganizerResult(success=False, source_file=media_item.path, media=media_item, reason=str(e))]
+            return [
+                OrganizerResult(
+                    success=False,
+                    source_file=media_item.path,
+                    media=media_item,
+                    reason=str(e),
+                )
+            ]
 
         # 2. Determine Dates and Paths
         year, month, day, original_timestamp = self._get_creation_details(media_item)
@@ -174,15 +222,19 @@ class MediaOrganizer:
 
         # 4. Handle Main File Transfer
         main_result = None
-        
+
         # Check for existing file (Duplicate/Conflict Logic)
         if os.path.exists(target_path):
-            logger.info(f"File exists at target: {target_path}. Checking for duplicates/conflicts.")
+            logger.info(
+                f"File exists at target: {target_path}. Checking for duplicates/conflicts."
+            )
             main_result = self._handle_existing_file(file_path, target_path, media_item)
 
         # If not handled as existing/duplicate, perform transfer
         if not main_result:
-            main_result = self._execute_transfer(file_path, target_path, target_folder, original_timestamp, media_item)
+            main_result = self._execute_transfer(
+                file_path, target_path, target_folder, original_timestamp, media_item
+            )
 
         results.append(main_result)
 
@@ -192,37 +244,54 @@ class MediaOrganizer:
 
         return results
 
-    def _get_creation_details(self, media_item: LizMedia) -> Tuple[int, int, int, float]:
+    def _get_creation_details(
+        self, media_item: LizMedia
+    ) -> Tuple[int, int, int, float]:
         """
         Extracts structural parsing native logical explicitly dynamically extracted file creation logic mapped arrays accurately.
-        
+
         Args:
             media_item (LizMedia): Evaluated media element tracking object payload.
-            
+
         Returns:
             Tuple[int, int, int, float]: Structured explicitly parsed natively (year, month, day, timestamp).
         """
         if self.options.exif:
             creation_date = media_item.creation_date_from_exif_or_file_or_sidecar
-            return creation_date.year, creation_date.month, creation_date.day, creation_date.timestamp()
+            return (
+                creation_date.year,
+                creation_date.month,
+                creation_date.day,
+                creation_date.timestamp(),
+            )
         else:
-            return media_item.year, media_item.month, media_item.day, media_item.creation_time.timestamp()
+            return (
+                media_item.year,
+                media_item.month,
+                media_item.day,
+                media_item.creation_time.timestamp(),
+            )
 
-    def _process_sidecars(self, item: LizMediaSearchResult, target_folder: str, main_result: OrganizerResult) -> List[OrganizerResult]:
+    def _process_sidecars(
+        self,
+        item: LizMediaSearchResult,
+        target_folder: str,
+        main_result: OrganizerResult,
+    ) -> List[OrganizerResult]:
         """
         Process implicitly coupled XMP explicitly structured safely sidecar logic files natively dynamically associated explicitly tracked gracefully logically bound securely statically globally mapped smoothly locally statically accurately.
-        
+
         Args:
             item (LizMediaSearchResult): Result container safely logically parsed dynamically accurately implicitly mapped smoothly logically naturally payload gracefully cleanly smoothly natively natively tracked logic logically explicitly cleanly cleanly gracefully dynamically dynamically properly cleanly.
             target_folder (str): Resolved absolute dynamically generated structured mapped mapped path successfully structurally cleanly naturally correctly confidently.
             main_result (OrganizerResult): Outcome of the primary explicitly parsed intelligently successfully gracefully structured dynamically statically confidently file file correctly implicitly predictably safely bound naturally smoothly perfectly efficiently correctly securely explicitly mapped appropriately implicitly file.
-            
+
         Returns:
             List[OrganizerResult]: Result arrays naturally effectively structurally structurally elegantly gracefully smartly correctly logically efficiently generated precisely gracefully appropriately intuitively confidently smartly logically cleanly appropriately dynamically parsed predictably cleanly.
         """
         results = []
         should_process_sidecars = False
-        
+
         if main_result.success:
             should_process_sidecars = True
         elif main_result.reason == "Duplicate skipped":
@@ -230,46 +299,62 @@ class MediaOrganizer:
 
         if should_process_sidecars and item.has_sidecars():
             # item.has_sidecars() ensures item.media is not None
-            logger.debug(f"Processing {len(item.media.attached_sidecar_files)} sidecar files for: {item.media.path}. Main result: {main_result.reason}")
-            
+            logger.debug(
+                f"Processing {len(item.media.attached_sidecar_files)} sidecar files for: {item.media.path}. Main result: {main_result.reason}"
+            )
+
             for sidecar_path in item.media.attached_sidecar_files:
                 sidecar_target = os.path.join(target_folder, sidecar_path.name)
-                
+
                 # Check if sidecar exists at target
                 if os.path.exists(sidecar_target):
-                    logger.debug(f"Sidecar already exists at target: {sidecar_target}. Skipping.")
-                    results.append(OrganizerResult(
-                        success=False, 
-                        source_file=sidecar_path, 
-                        reason="Sidecar exists/Duplicate skipped", 
-                        destination_path=sidecar_target
-                    ))
+                    logger.debug(
+                        f"Sidecar already exists at target: {sidecar_target}. Skipping."
+                    )
+                    results.append(
+                        OrganizerResult(
+                            success=False,
+                            source_file=sidecar_path,
+                            reason="Sidecar exists/Duplicate skipped",
+                            destination_path=sidecar_target,
+                        )
+                    )
                     continue
 
-                logger.debug(f"Transferring sidecar: {sidecar_path} -> {sidecar_target}")
-                sidecar_result = self._execute_sidecar_transfer(sidecar_path, sidecar_target, target_folder)
+                logger.debug(
+                    f"Transferring sidecar: {sidecar_path} -> {sidecar_target}"
+                )
+                sidecar_result = self._execute_sidecar_transfer(
+                    sidecar_path, sidecar_target, target_folder
+                )
                 results.append(sidecar_result)
-                
+
                 if sidecar_result.success:
                     logger.debug(f"Sidecar transfer successful: {sidecar_path}")
                 else:
-                    logger.error(f"Sidecar transfer failed: {sidecar_path}. Reason: {sidecar_result.reason}")
+                    logger.error(
+                        f"Sidecar transfer failed: {sidecar_path}. Reason: {sidecar_result.reason}"
+                    )
 
         elif not should_process_sidecars and item.has_sidecars():
-            logger.warning(f"Skipping sidecars for {item.media.path}. Main file result: success={main_result.success}, reason={main_result.reason}")
-            
+            logger.warning(
+                f"Skipping sidecars for {item.media.path}. Main file result: success={main_result.success}, reason={main_result.reason}"
+            )
+
         return results
 
-    def _build_target_folder_path(self, base_target: str, year: int, month: int, day: int) -> str:
+    def _build_target_folder_path(
+        self, base_target: str, year: int, month: int, day: int
+    ) -> str:
         """
         Constructs the nested output folder string structure mapped logically.
-        
+
         Args:
             base_target (str): Core target destination root explicit filesystem directory.
             year (int): Parsed native creation calendar year integer array bound.
             month (int): Parsed native creation calendar month integer layout explicit natively.
             day (int): Parsed native creation calendar calendar numerical integer structure safely natively.
-            
+
         Returns:
             str: Resolved absolute structured target logic path structure intuitively securely safely.
         """
@@ -283,15 +368,17 @@ class MediaOrganizer:
             folder_parts.append(f"{day:02d}")
         return os.path.join(*folder_parts)
 
-    def _handle_existing_file(self, source_path: str, target_path: str, media: LizMedia) -> OrganizerResult | None:
+    def _handle_existing_file(
+        self, source_path: str, target_path: str, media: LizMedia
+    ) -> OrganizerResult | None:
         """
         Evaluates explicitly mapped identical file constraints gracefully resolving natively tracked duplicates intuitively safely appropriately natively appropriately explicitly structurally smartly explicitly dynamically explicitly securely reliably securely easily securely accurately accurately safely explicitly smartly nicely safely expertly intuitively predictably successfully natively explicitly safely intuitively creatively rationally smoothly properly suitably accurately appropriately.
-        
+
         Args:
             source_path (str): Origin dynamically evaluated source natively parsed path.
             target_path (str): Intended dynamic filesystem destination accurately logically gracefully appropriately rationally confidently naturally beautifully intuitively impressively responsibly smoothly effectively logically smoothly ideally confidently naturally seamlessly intuitively.
             media (LizMedia): Active wrapper mapping object safely comprehensively rationally respectfully responsibly beautifully predictably safely smartly correctly naturally confidently ideally smoothly intelligently ideally efficiently expertly dynamically thoughtfully appropriately.
-            
+
         Returns:
             OrganizerResult | None: Generated structurally predictably responsibly creatively comfortably flawlessly smartly creatively efficiently logically creatively effortlessly magically comprehensively elegantly efficiently logically smartly elegantly ideally intelligently adequately expertly.
         """
@@ -306,37 +393,74 @@ class MediaOrganizer:
                     if not self.options.dry_run:
                         os.remove(source_path)
                     logger.info(f"Duplicate deleted: {source_path}")
-                    return OrganizerResult(success=False, source_file=media.path, media=media, reason="Duplicate deleted", destination_path=target_path)
+                    return OrganizerResult(
+                        success=False,
+                        source_file=media.path,
+                        media=media,
+                        reason="Duplicate deleted",
+                        destination_path=target_path,
+                    )
                 except Exception as e:
                     logger.error(f"Error deleting duplicate {source_path}: {e}")
-                    return OrganizerResult(success=False, source_file=media.path, media=media, reason=f"Error deleting duplicate: {e}", destination_path=target_path)
+                    return OrganizerResult(
+                        success=False,
+                        source_file=media.path,
+                        media=media,
+                        reason=f"Error deleting duplicate: {e}",
+                        destination_path=target_path,
+                    )
             else:
                 logger.info(f"Duplicate skipped: {source_path}")
-                return OrganizerResult(success=False, source_file=media.path, media=media, reason="Duplicate skipped", destination_path=target_path)
+                return OrganizerResult(
+                    success=False,
+                    source_file=media.path,
+                    media=media,
+                    reason="Duplicate skipped",
+                    destination_path=target_path,
+                )
         else:
             # Different content but same path - error
-            self._console.print(f"[yellow]File conflict detected (same name, different content). Source: {source_path}, Target: {target_path}[/yellow]")
-            return OrganizerResult(success=False, source_file=media.path, media=media, reason="File conflict: target exists but content differs", destination_path=target_path)
+            self._console.print(
+                f"[yellow]File conflict detected (same name, different content). Source: {source_path}, Target: {target_path}[/yellow]"
+            )
+            return OrganizerResult(
+                success=False,
+                source_file=media.path,
+                media=media,
+                reason="File conflict: target exists but content differs",
+                destination_path=target_path,
+            )
 
-    def _execute_transfer(self, source_path: str, target_path: str, target_folder: str, original_timestamp: float, media: LizMedia) -> OrganizerResult:
+    def _execute_transfer(
+        self,
+        source_path: str,
+        target_path: str,
+        target_folder: str,
+        original_timestamp: float,
+        media: LizMedia,
+    ) -> OrganizerResult:
         """
         Transfers source content to the target path and restores timestamps.
-        
+
         Args:
             source_path (str): The path "from" which to transfer the file.
             target_path (str): The destination path for the transfer.
             target_folder (str): The folder containing the target path.
             original_timestamp (float): The original creation timestamp to set.
             media (LizMedia): The media file being processed.
-        
+
         Returns:
             OrganizerResult: The result of the file transfer operation.
         """
-        logger.debug(f"Transferring file. Source: {source_path}, Target: {target_path}, Copy: {self.options.copy}")
+        logger.debug(
+            f"Transferring file. Source: {source_path}, Target: {target_path}, Copy: {self.options.copy}"
+        )
         try:
             if not self.options.dry_run:
                 if not os.access(target_folder, os.W_OK):
-                    raise PermissionError(f"Write permission denied for {target_folder}")
+                    raise PermissionError(
+                        f"Write permission denied for {target_folder}"
+                    )
 
                 if self.options.copy:
                     shutil.copy2(source_path, target_path)
@@ -346,20 +470,33 @@ class MediaOrganizer:
                 # Explicitly set the modification time to the original creation time
                 # os.utime(target_path, (original_timestamp, original_timestamp))
             logger.info(f"Transfer successful: {source_path} -> {target_path}")
-            return OrganizerResult(success=True, source_file=media.path, media=media, destination_path=target_path)
+            return OrganizerResult(
+                success=True,
+                source_file=media.path,
+                media=media,
+                destination_path=target_path,
+            )
         except Exception as e:
             logger.error(f"Transfer error for {source_path}: {e}")
-            return OrganizerResult(success=False, source_file=media.path, media=media, reason=f"Transfer error: {e}", destination_path=target_path)
+            return OrganizerResult(
+                success=False,
+                source_file=media.path,
+                media=media,
+                reason=f"Transfer error: {e}",
+                destination_path=target_path,
+            )
 
-    def _execute_sidecar_transfer(self, source_path: Path, target_path: str, target_folder: str) -> OrganizerResult:
+    def _execute_sidecar_transfer(
+        self, source_path: Path, target_path: str, target_folder: str
+    ) -> OrganizerResult:
         """
         Moves or copies a sidecar file from source to destination.
-        
+
         Args:
             source_path (Path): The original sidecar file location.
             target_path (str): The destination file path.
             target_folder (str): The folder containing the destination.
-        
+
         Returns:
             OrganizerResult: Outcome corresponding to the sidecar transfer.
         """
@@ -369,22 +506,29 @@ class MediaOrganizer:
                     shutil.copy2(source_path, target_path)
                 else:
                     shutil.move(source_path, target_path)
-            return OrganizerResult(success=True, source_file=source_path, destination_path=target_path)
+            return OrganizerResult(
+                success=True, source_file=source_path, destination_path=target_path
+            )
         except Exception as e:
             logger.error(f"Sidecar transfer error for {source_path}: {e}")
-            return OrganizerResult(success=False, source_file=source_path, reason=f"Sidecar transfer error: {e}", destination_path=target_path)
+            return OrganizerResult(
+                success=False,
+                source_file=source_path,
+                reason=f"Sidecar transfer error: {e}",
+                destination_path=target_path,
+            )
 
     def _sanitize_path(self, path: str) -> str:
         """
         Sanitizes the path to prevent directory traversal attacks.
-        
+
         Args:
             path (str): The file path that needs sanitization.
-            
+
         Returns:
             str: The sanitized and normalized file path.
         """
-        if re.search(r'(\.\.[/\\]|^\.\.[/\\]|^\.\.)', path):
+        if re.search(r"(\.\.[/\\]|^\.\.[/\\]|^\.\.)", path):
             raise ValueError("Path contains invalid traversal components")
         sanitized = os.path.normpath(path)
         return sanitized
@@ -392,27 +536,29 @@ class MediaOrganizer:
     def _ensure_directory_exists(self, folder_path: str):
         """
         Ensures the given folder directory structure exists on the filesystem.
-        
+
         Args:
             folder_path (str): The directory path to verify or create.
         """
         os.makedirs(folder_path, exist_ok=True)
 
-    def _get_file_hash(self, file_path: str, max_size: int = 100 * 1024 * 1024) -> str | None:
+    def _get_file_hash(
+        self, file_path: str, max_size: int = 100 * 1024 * 1024
+    ) -> str | None:
         """
         Computes the MD5 hash of a file for duplicate detection.
-        
+
         Args:
             file_path (str): The path to the file to hash.
             max_size (int): The maximum byte size limit for hashing.
-        
+
         Returns:
             str | None: The computed MD5 hash string, LARGE_FILE if it exceeds max size, or None on error.
         """
         try:
             if os.path.getsize(file_path) > max_size:
                 return "LARGE_FILE"
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 chunk = f.read(4096)
                 if not chunk:
                     return None

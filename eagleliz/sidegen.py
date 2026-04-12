@@ -3,6 +3,7 @@ Command line interface for generating sidecar files.
 
 Provides the 'sidegen' command for the pylizmedia CLI tool.
 """
+
 from pathlib import Path
 from typing import List, Optional
 import typer
@@ -17,25 +18,26 @@ from eagleliz.local.searcher_eagle import EagleCatalogSearcher
 
 @eagleliz_app.command()
 def sidegen(
-        path: str = typer.Argument(
-            None,
-            dir_okay=True,
-            readable=True,
-            help="Source path of Eagle catalog",
-            envvar="PYL_M_SIDEGEN_PATH"
-        ),
-        eagletag: Optional[List[str]] = typer.Option(
-            None,
-            "--eagletag", "-et",
-            help="Eagle tags to filter by (can be repeated: -et tag1 -et tag2)",
-            envvar="PYL_M_SIDEGEN_EAGLETAG"
-        ),
-        dry: bool = typer.Option(
-            False,
-            "--dry",
-            help="Run in dry-run mode (preview only)",
-            envvar="PYL_M_SIDEGEN_DRY"
-        )
+    path: str = typer.Argument(
+        None,
+        dir_okay=True,
+        readable=True,
+        help="Source path of Eagle catalog",
+        envvar="PYL_M_SIDEGEN_PATH",
+    ),
+    eagletag: Optional[List[str]] = typer.Option(
+        None,
+        "--eagletag",
+        "-et",
+        help="Eagle tags to filter by (can be repeated: -et tag1 -et tag2)",
+        envvar="PYL_M_SIDEGEN_EAGLETAG",
+    ),
+    dry: bool = typer.Option(
+        False,
+        "--dry",
+        help="Run in dry-run mode (preview only)",
+        envvar="PYL_M_SIDEGEN_DRY",
+    ),
 ):
     """
     Generate XMP sidecar files for media items in an Eagle catalog.
@@ -43,7 +45,7 @@ def sidegen(
     Scans the catalog, finds images and videos, and creates/recreates
     .xmp sidecar files in the same directory as the source media.
     If the sidecar already exists, it is deleted and recreated.
-    
+
     Args:
         path (str): The source path of the Eagle catalog (usually ending in .library).
         eagletag (Optional[List[str]]): Eagle tags to filter the generation by.
@@ -57,7 +59,9 @@ def sidegen(
 
     path_obj = Path(path)
     if not path_obj.exists() or not path_obj.is_dir():
-        typer.echo(f"❌ Error: path '{path}' does not exist or is not a directory", err=True)
+        typer.echo(
+            f"❌ Error: path '{path}' does not exist or is not a directory", err=True
+        )
         raise typer.Exit(code=1)
 
     # Log parameters
@@ -77,7 +81,9 @@ def sidegen(
     media_list = search_result.accepted
 
     if not media_list:
-        print("[yellow]No media files found in the Eagle catalog matching the criteria.[/yellow]")
+        print(
+            "[yellow]No media files found in the Eagle catalog matching the criteria.[/yellow]"
+        )
         raise typer.Exit(code=0)
 
     print(f"\nFound [bold cyan]{len(media_list)}[/bold cyan] media files.")

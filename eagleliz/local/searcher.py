@@ -4,6 +4,7 @@ Facade for media file search strategies.
 Coordinates searching through the filesystem or Eagle catalogs, manages
 temporary XMP generation, and provides reporting utilities.
 """
+
 import os
 import shutil
 import tempfile
@@ -50,7 +51,7 @@ class EagleLocalSearcher:
         """
         return self._result
 
-    def run_search_system(self, exclude: str = None, dry: bool = False):
+    def run_search_system(self, exclude: str | None = None, dry: bool = False):
         """
         Runs a standard filesystem structural matching search strategy recursively natively.
 
@@ -111,11 +112,17 @@ class EagleLocalSearcher:
         self._temp_xmp_dir = tempfile.mkdtemp(prefix="pyliz_xmp_")
 
         # Use tqdm for progress if there are items
-        accepted_items = [i for i in self._result.accepted if i.media and not i.media.has_xmp_sidecar()]
+        accepted_items = [
+            i
+            for i in self._result.accepted
+            if i.media and not i.media.has_xmp_sidecar()
+        ]
 
         if not accepted_items:
-             self._console.print("[green]No missing XMP files needed generation.[/green]\n")
-             return
+            self._console.print(
+                "[green]No missing XMP files needed generation.[/green]\n"
+            )
+            return
 
         pbar = tqdm(accepted_items, desc="Generating missing XMPs", unit="files")
         for idx, item in enumerate(pbar):
@@ -134,25 +141,35 @@ class EagleLocalSearcher:
                 handler = MetadataHandler(item.path)
                 if handler.generate_xmp(temp_path):
                     # Set the creation date in the XMP file
-                    creation_date = item.media.creation_date_from_exif_or_file_or_sidecar
+                    creation_date = (
+                        item.media.creation_date_from_exif_or_file_or_sidecar
+                    )
                     handler.set_creation_date(creation_date, temp_path)
 
                     # If Eagle metadata is available, append it to the generated XMP
                     if item.media.eagle_metadata:
-                        handler.append_eagle_to_xmp(item.media.eagle_metadata, temp_path)
+                        handler.append_eagle_to_xmp(
+                            item.media.eagle_metadata, temp_path
+                        )
 
                     # Attach to LizMedia
                     item.media.attach_sidecar_file(Path(temp_path))
                     self.generated_xmps_list.append((item.media.file_name, temp_path))
                 else:
-                    self._console.print(f"[red]Failed to generate XMP for {item.media.file_name} (check logs/exiftool)[/red]")
+                    self._console.print(
+                        f"[red]Failed to generate XMP for {item.media.file_name} (check logs/exiftool)[/red]"
+                    )
 
             except Exception as e:
-                self._console.print(f"[red]Error processing XMP for {item.media.file_name}: {e}[/red]")
+                self._console.print(
+                    f"[red]Error processing XMP for {item.media.file_name}: {e}[/red]"
+                )
 
         if self.generated_xmps_list:
             print("\n")
-            table = Table(title=f"Generated Missing XMP Files ({len(self.generated_xmps_list)})")
+            table = Table(
+                title=f"Generated Missing XMP Files ({len(self.generated_xmps_list)})"
+            )
             table.add_column("Media Filename", style="cyan")
             table.add_column("Generated XMP Path", style="magenta")
 
@@ -171,11 +188,15 @@ class EagleLocalSearcher:
                 try:
                     shutil.rmtree(self._temp_xmp_dir)
                 except OSError as e:
-                    print(f"[red]Error removing temp dir {self._temp_xmp_dir}: {e}[/red]")
+                    print(
+                        f"[red]Error removing temp dir {self._temp_xmp_dir}: {e}[/red]"
+                    )
             return
 
         print("\n")
-        with tqdm(self.generated_xmps_list, desc="Cleaning up temp XMP files", unit="files") as pbar:
+        with tqdm(
+            self.generated_xmps_list, desc="Cleaning up temp XMP files", unit="files"
+        ) as pbar:
             for _, xmp_path in pbar:
                 pbar.set_description(f"Cleaning up {Path(xmp_path).name}")
                 try:
@@ -191,4 +212,3 @@ class EagleLocalSearcher:
                 # print(f"[dim]Removed temporary directory: {self._temp_xmp_dir}[/dim]")
             except OSError as e:
                 print(f"[red]Error removing temp dir {self._temp_xmp_dir}: {e}[/red]")
-

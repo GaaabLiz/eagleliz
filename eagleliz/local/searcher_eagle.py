@@ -4,6 +4,7 @@ Search strategy for Eagle library catalogs.
 Integrates with the Eagle local reader to extract media items and metadata
 from an Eagle library folder.
 """
+
 from pathlib import Path
 from typing import List, Optional
 
@@ -12,7 +13,12 @@ from tqdm import tqdm
 
 from pylizlib.core.domain.os import FileType
 from pylizlib.core.os.file import is_media_file, is_media_sidecar_file
-from pylizlib.media.lizmedia import LizMedia, MediaListResult, LizMediaSearchResult, MediaStatus
+from pylizlib.media.lizmedia import (
+    LizMedia,
+    MediaListResult,
+    LizMediaSearchResult,
+    MediaStatus,
+)
 
 from eagleliz.local.reader import EagleLocalReader
 
@@ -21,10 +27,11 @@ class EagleCatalogSearcher:
     """
     Strategy class to search for media files using the Eagle library.
     """
+
     def __init__(self, path: str, include_base64: bool = False):
         """
         Initialize with the path to the Eagle library.
-        
+
         :param path: Base path of the Eagle library.
         :param include_base64: Whether to include base64 content of media files.
         """
@@ -35,7 +42,7 @@ class EagleCatalogSearcher:
     def get_result(self) -> MediaListResult:
         """
         Returns the collected search result object.
-        
+
         Returns:
             MediaListResult: The globally bound and tracked success and error tracking mappings.
         """
@@ -44,21 +51,29 @@ class EagleCatalogSearcher:
     def search(self, eagletag: Optional[List[str]] = None):
         """
         Performs the search parsing operation securely directly against the eagle library catalog internal formats.
-        
+
         Args:
             eagletag (Optional[List[str]]): An array of strings representing tags to explicitly filter results internally by.
         """
-        self._result = MediaListResult() # Reset result on new search
+        self._result = MediaListResult()  # Reset result on new search
         reader = EagleLocalReader(
-            Path(self.path), 
-            file_types=[FileType.IMAGE, FileType.VIDEO, FileType.AUDIO, FileType.MEDIA_SIDECAR],
+            Path(self.path),
+            file_types=[
+                FileType.IMAGE,
+                FileType.VIDEO,
+                FileType.AUDIO,
+                FileType.BOOKMARK,
+                FileType.TEXT,
+                FileType.DOCUMENT,
+                FileType.MEDIA_SIDECAR,
+            ],
             filter_tags=eagletag,
-            include_base64=self.include_base64
+            include_base64=self.include_base64,
         )
-        
+
         # Run the reader to populate findings (blocking operation with its own progress bar)
-        reader.run() 
-        
+        reader.run()
+
         self._process_accepted_items(reader)
         self._process_skipped_items(reader)
         self._process_errors(reader)
@@ -68,7 +83,7 @@ class EagleCatalogSearcher:
         """
         Process mapping logic for media items successfully natively accepted by the Eagle reader.
         Links sidecars logically into nested mapped bounds.
-        
+
         Args:
             reader (EagleLocalReader): Executed reader instance carrying validated state array properties.
         """
@@ -84,25 +99,29 @@ class EagleCatalogSearcher:
                 sidecar_items.append(item)
             else:
                 # Should not happen given Reader filters, but fallback
-                self._result.rejected.append(LizMediaSearchResult(
-                    status=MediaStatus.REJECTED,
-                    path=item.file_path,
-                    reason="Unknown file type in accepted list"
-                ))
+                self._result.rejected.append(
+                    LizMediaSearchResult(
+                        status=MediaStatus.REJECTED,
+                        path=item.file_path,
+                        reason="Unknown file type in accepted list",
+                    )
+                )
 
         # Process Media Items
         with tqdm(media_items, desc="Processing Eagle Media", unit="items") as pbar:
             for eagle in pbar:
                 pbar.set_description(f"Processing {eagle.file_path.name}")
-                
+
                 lizmedia = LizMedia(eagle.file_path)
                 lizmedia.attach_eagle_metadata(eagle.metadata)
-                
-                self._result.accepted.append(LizMediaSearchResult(
-                    status=MediaStatus.ACCEPTED,
-                    path=eagle.file_path,
-                    media=lizmedia
-                ))
+
+                self._result.accepted.append(
+                    LizMediaSearchResult(
+                        status=MediaStatus.ACCEPTED,
+                        path=eagle.file_path,
+                        media=lizmedia,
+                    )
+                )
                 self._result.accepted[-1].media.base64_content = eagle.base64_content
                 pbar.update(1)
             pbar.set_description("Media processing complete")
@@ -115,35 +134,43 @@ class EagleCatalogSearcher:
         with tqdm(sidecar_items, desc="Linking Sidecars", unit="items") as pbar:
             for sidecar in pbar:
                 stem = sidecar.file_path.stem
-                
+
                 # Check match by name (e.g. image.png.xmp -> matches image.png)
                 if stem in accepted_map_by_name:
-                    accepted_map_by_name[stem].media.attach_sidecar_file(sidecar.file_path)
+                    accepted_map_by_name[stem].media.attach_sidecar_file(
+                        sidecar.file_path
+                    )
                     pbar.update(1)
                     continue
-                
+
                 # Check match by stem (e.g. image.xmp -> matches image.png)
                 if stem in accepted_map_by_stem:
-                    accepted_map_by_stem[stem].media.attach_sidecar_file(sidecar.file_path)
+                    accepted_map_by_stem[stem].media.attach_sidecar_file(
+                        sidecar.file_path
+                    )
                     pbar.update(1)
                     continue
-                
+
                 # Orphan sidecar
-                self._result.rejected.append(LizMediaSearchResult(
-                    status=MediaStatus.REJECTED,
-                    path=sidecar.file_path,
-                    reason="Orphan sidecar file (no matching media)"
-                ))
+                self._result.rejected.append(
+                    LizMediaSearchResult(
+                        status=MediaStatus.REJECTED,
+                        path=sidecar.file_path,
+                        reason="Orphan sidecar file (no matching media)",
+                    )
+                )
                 pbar.update(1)
 
     def _process_skipped_items(self, reader: EagleLocalReader):
         """
         Track gracefully items explicitly skipped by the Eagle reader bounding filters.
-        
+
         Args:
             reader (EagleLocalReader): Executed instance evaluating rejection logic.
         """
-        for eagle_item, reason in tqdm(reader.items_skipped, desc="Processing Skipped Items", unit="items"):
+        for eagle_item, reason in tqdm(
+            reader.items_skipped, desc="Processing Skipped Items", unit="items"
+        ):
             media_obj = None
             try:
                 # Attempt to create LizMedia only if it's a media file, otherwise None
@@ -152,32 +179,38 @@ class EagleCatalogSearcher:
             except ValueError:
                 pass
 
-            self._result.rejected.append(LizMediaSearchResult(
-                status=MediaStatus.REJECTED,
-                path=eagle_item.file_path,
-                media=media_obj,
-                reason=reason
-            ))
+            self._result.rejected.append(
+                LizMediaSearchResult(
+                    status=MediaStatus.REJECTED,
+                    path=eagle_item.file_path,
+                    media=media_obj,
+                    reason=reason,
+                )
+            )
 
     def _process_errors(self, reader: EagleLocalReader):
         """
         Process any critical low level structural parsing errors explicitly generated safely by the underlying reader iteration.
-        
+
         Args:
             reader (EagleLocalReader): Initialized executed wrapper logging path and reason.
         """
-        for error_path, reason in tqdm(reader.error_paths, desc="Processing Reader Errors", unit="errors"):
-            self._result.errored.append(LizMediaSearchResult(
-                status=MediaStatus.REJECTED,
-                path=error_path,
-                media=None,
-                reason=reason
-            ))
+        for error_path, reason in tqdm(
+            reader.error_paths, desc="Processing Reader Errors", unit="errors"
+        ):
+            self._result.errored.append(
+                LizMediaSearchResult(
+                    status=MediaStatus.REJECTED,
+                    path=error_path,
+                    media=None,
+                    reason=reason,
+                )
+            )
 
     def _print_summary(self, reader: EagleLocalReader):
         """
         Print a formatted tracking summary representing success states of the internal mapped reader operation outputs.
-        
+
         Args:
             reader (EagleLocalReader): Reader payload to print out to stdout explicitly.
         """
@@ -188,7 +221,10 @@ class EagleCatalogSearcher:
         print(f"  Accepted items: {len(self._result.accepted)}")
         print(f"  Rejected items: {len(self._result.rejected)}")
         print(f"  Errored items: {len(self._result.errored)}")
-        
-        total_sidecars = sum(len(item.media.attached_sidecar_files) for item in self._result.accepted if item.media)
-        print(f"  Sidecar files linked: {total_sidecars}")
 
+        total_sidecars = sum(
+            len(item.media.attached_sidecar_files)
+            for item in self._result.accepted
+            if item.media
+        )
+        print(f"  Sidecar files linked: {total_sidecars}")

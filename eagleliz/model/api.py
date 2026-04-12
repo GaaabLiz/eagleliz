@@ -6,9 +6,15 @@ from dataclasses import dataclass, field, fields
 from typing import Any, Optional
 
 
-def _split_known_and_extra_data(model_cls: type, data: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+def _split_known_and_extra_data(
+    model_cls: type, data: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Split a raw API dictionary into dataclass fields and extra values."""
-    known_fields = {model_field.name for model_field in fields(model_cls) if model_field.name != "_extra_data"}
+    known_fields = {
+        model_field.name
+        for model_field in fields(model_cls)
+        if model_field.name != "_extra_data"
+    }
     known_data = {key: value for key, value in data.items() if key in known_fields}
     extra_data = {key: value for key, value in data.items() if key not in known_fields}
     return known_data, extra_data
@@ -142,7 +148,9 @@ class LibraryInfo:
         """Build a ``LibraryInfo`` instance from a raw Eagle API payload."""
         known_data, extra_data = _split_known_and_extra_data(cls, data or {})
         folders_data = known_data.get("folders") or []
-        known_data["folders"] = [EagleFolder.from_dict(folder_data) for folder_data in folders_data]
+        known_data["folders"] = [
+            EagleFolder.from_dict(folder_data) for folder_data in folders_data
+        ]
         known_data.setdefault("smartFolders", [])
         known_data.setdefault("quickAccess", [])
         known_data.setdefault("tagsGroups", [])
@@ -159,4 +167,3 @@ __all__ = [
     "EagleItemURLPayload",
     "LibraryInfo",
 ]
-

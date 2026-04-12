@@ -77,34 +77,62 @@ class AsyncEagleAPI(EagleAPIBase):
             EagleAPIError: If the request fails at the transport, HTTP or JSON
                 parsing layer, or if Eagle responds with a non-success status.
         """
-        url = build_request_url(self.base_url, endpoint, params=params, token=self.token if method == "GET" else None)
-        payload = build_json_payload(data, token=self.token if method == "POST" else None)
+        url = build_request_url(
+            self.base_url,
+            endpoint,
+            params=params,
+            token=self.token if method == "GET" else None,
+        )
+        payload = build_json_payload(
+            data, token=self.token if method == "POST" else None
+        )
 
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.request(method, url, json=payload)
                 response.raise_for_status()
                 result = response.json()
-                return parse_api_response(result, url=mask_token(str(response.url), self.token))
+                return parse_api_response(
+                    result, url=mask_token(str(response.url), self.token)
+                )
             except httpx.HTTPStatusError as exc:
                 log_url = mask_token(str(exc.request.url), self.token)
-                logger.error("HTTP error %s for Eagle API at %s. Body: %s", exc.response.status_code, log_url, exc.response.text)
-                raise EagleAPIError(f"HTTP {exc.response.status_code} error: {exc.response.text}") from exc
+                logger.error(
+                    "HTTP error %s for Eagle API at %s. Body: %s",
+                    exc.response.status_code,
+                    log_url,
+                    exc.response.text,
+                )
+                raise EagleAPIError(
+                    f"HTTP {exc.response.status_code} error: {exc.response.text}"
+                ) from exc
             except httpx.HTTPError as exc:
-                logger.error("Request transport failed for Eagle API endpoint %s: %s", endpoint, exc)
+                logger.error(
+                    "Request transport failed for Eagle API endpoint %s: %s",
+                    endpoint,
+                    exc,
+                )
                 raise EagleAPIError(f"Connection error: {exc}") from exc
             except json.JSONDecodeError as exc:
                 log_url = mask_token(url, self.token)
-                logger.error("Failed to parse JSON response from Eagle API at %s. Error: %s", log_url, exc)
+                logger.error(
+                    "Failed to parse JSON response from Eagle API at %s. Error: %s",
+                    log_url,
+                    exc,
+                )
                 raise EagleAPIError(f"JSON parse error: {exc}") from exc
 
-    async def _read_bytes(self, endpoint: str, *, params: Optional[dict[str, Any]] = None) -> bytes:
+    async def _read_bytes(
+        self, endpoint: str, *, params: Optional[dict[str, Any]] = None
+    ) -> bytes:
         """Execute an endpoint that streams raw bytes instead of JSON.
 
         This is currently used for ``GET /api/library/icon``, which returns the
         icon image content directly rather than Eagle's standard JSON envelope.
         """
-        url = build_request_url(self.base_url, endpoint, params=params, token=self.token)
+        url = build_request_url(
+            self.base_url, endpoint, params=params, token=self.token
+        )
 
         async with httpx.AsyncClient() as client:
             try:
@@ -113,10 +141,21 @@ class AsyncEagleAPI(EagleAPIBase):
                 return response.content
             except httpx.HTTPStatusError as exc:
                 log_url = mask_token(str(exc.request.url), self.token)
-                logger.error("HTTP error %s fetching Eagle binary response at %s. Body: %s", exc.response.status_code, log_url, exc.response.text)
-                raise EagleAPIError(f"HTTP {exc.response.status_code} error: {exc.response.text}") from exc
+                logger.error(
+                    "HTTP error %s fetching Eagle binary response at %s. Body: %s",
+                    exc.response.status_code,
+                    log_url,
+                    exc.response.text,
+                )
+                raise EagleAPIError(
+                    f"HTTP {exc.response.status_code} error: {exc.response.text}"
+                ) from exc
             except httpx.HTTPError as exc:
-                logger.error("Request transport failed for Eagle API binary endpoint %s: %s", endpoint, exc)
+                logger.error(
+                    "Request transport failed for Eagle API binary endpoint %s: %s",
+                    endpoint,
+                    exc,
+                )
                 raise EagleAPIError(f"Connection error: {exc}") from exc
 
     async def get_application_info(self) -> ApplicationInfo:
@@ -155,7 +194,9 @@ class AsyncEagleAPI(EagleAPIBase):
         Returns:
             ``True`` when Eagle acknowledges the request successfully.
         """
-        await self._make_request("/library/switch", method="POST", data={"libraryPath": library_path})
+        await self._make_request(
+            "/library/switch", method="POST", data={"libraryPath": library_path}
+        )
         return True
 
     async def get_library_icon(self, library_path: str) -> bytes:
@@ -164,9 +205,13 @@ class AsyncEagleAPI(EagleAPIBase):
         The official ``GET /api/library/icon`` endpoint takes a ``libraryPath``
         query parameter and streams image bytes directly.
         """
-        return await self._read_bytes("/library/icon", params={"libraryPath": library_path})
+        return await self._read_bytes(
+            "/library/icon", params={"libraryPath": library_path}
+        )
 
-    async def create_folder(self, folder_name: str, parent_id: Optional[str] = None) -> EagleFolder:
+    async def create_folder(
+        self, folder_name: str, parent_id: Optional[str] = None
+    ) -> EagleFolder:
         """Create a folder in the current library.
 
         Args:
@@ -299,7 +344,9 @@ class AsyncEagleAPI(EagleAPIBase):
         )
         return True
 
-    async def add_items_from_urls(self, items: list[EagleItemURLPayload], folder_id: Optional[str] = None) -> bool:
+    async def add_items_from_urls(
+        self, items: list[EagleItemURLPayload], folder_id: Optional[str] = None
+    ) -> bool:
         """Import multiple remote assets in one request.
 
         Wraps ``POST /api/item/addFromURLs``. Using the batch endpoint is the
@@ -338,7 +385,9 @@ class AsyncEagleAPI(EagleAPIBase):
         await self._make_request("/item/addFromPath", method="POST", data=payload)
         return True
 
-    async def add_items_from_paths(self, items: list[EagleItemPathPayload], folder_id: Optional[str] = None) -> bool:
+    async def add_items_from_paths(
+        self, items: list[EagleItemPathPayload], folder_id: Optional[str] = None
+    ) -> bool:
         """Import multiple local files in one request.
 
         Wraps ``POST /api/item/addFromPaths``.
@@ -386,7 +435,9 @@ class AsyncEagleAPI(EagleAPIBase):
         Returns:
             ``True`` when Eagle reports success.
         """
-        await self._make_request("/item/moveToTrash", method="POST", data={"itemIds": item_ids})
+        await self._make_request(
+            "/item/moveToTrash", method="POST", data={"itemIds": item_ids}
+        )
         return True
 
     async def update_item(
@@ -420,7 +471,9 @@ class AsyncEagleAPI(EagleAPIBase):
 
         Wraps ``POST /api/item/refreshPalette``.
         """
-        await self._make_request("/item/refreshPalette", method="POST", data={"id": item_id})
+        await self._make_request(
+            "/item/refreshPalette", method="POST", data={"id": item_id}
+        )
         return True
 
     async def refresh_item_thumbnail(self, item_id: str) -> bool:
@@ -429,7 +482,9 @@ class AsyncEagleAPI(EagleAPIBase):
         Per the official documentation, Eagle also refreshes color analysis as
         part of ``POST /api/item/refreshThumbnail``.
         """
-        await self._make_request("/item/refreshThumbnail", method="POST", data={"id": item_id})
+        await self._make_request(
+            "/item/refreshThumbnail", method="POST", data={"id": item_id}
+        )
         return True
 
     async def get_item_info(self, item_id: str) -> EagleItem:
@@ -491,5 +546,3 @@ class AsyncEagleAPI(EagleAPIBase):
 
 
 __all__ = ["AsyncEagleAPI"]
-
-

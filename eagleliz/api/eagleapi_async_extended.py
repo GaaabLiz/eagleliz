@@ -71,12 +71,16 @@ class AsynchEagleApiExtended(AsyncEagleAPI):
             with open(path, "rb") as handle:
                 raw = handle.read()
         except OSError as exc:
-            raise RuntimeError(f"Impossibile leggere il file immagine '{path}': {exc}") from exc
+            raise RuntimeError(
+                f"Impossibile leggere il file immagine '{path}': {exc}"
+            ) from exc
 
         b64 = base64.b64encode(raw).decode("ascii")
         return f"data:{mime};base64,{b64}"
 
-    async def _post_to_eagle(self, url_or_data_uri: str, name: str, tags: list[str]) -> str:
+    async def _post_to_eagle(
+        self, url_or_data_uri: str, name: str, tags: list[str]
+    ) -> str:
         """Call ``POST /api/item/addFromURL`` and return the new item ID.
 
         Args:
@@ -91,7 +95,9 @@ class AsynchEagleApiExtended(AsyncEagleAPI):
             RuntimeError: On API errors or if Eagle does not return an ID.
         """
         try:
-            data = await self._add_item_from_url_request(url=url_or_data_uri, name=name, tags=tags)
+            data = await self._add_item_from_url_request(
+                url=url_or_data_uri, name=name, tags=tags
+            )
         except EagleAPIError as exc:
             raise RuntimeError(f"Eagle API request failed: {exc}") from exc
 
@@ -108,4 +114,3 @@ class AsynchEagleApiExtended(AsyncEagleAPI):
 
 
 __all__ = ["AsynchEagleApiExtended"]
-

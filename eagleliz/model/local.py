@@ -14,7 +14,9 @@ class EagleLocalItem:
         base64_content (Optional[str]): Base64 encoded string of the asset, if requested.
     """
 
-    def __init__(self, file_path: Path, metadata: Metadata, base64_content: Optional[str] = None):
+    def __init__(
+        self, file_path: Path, metadata: Metadata, base64_content: Optional[str] = None
+    ):
         """
         Initializes an EagleLocalItem explicitly.
 
@@ -26,4 +28,3 @@ class EagleLocalItem:
         self.file_path = file_path
         self.metadata = metadata
         self.base64_content = base64_content
-
