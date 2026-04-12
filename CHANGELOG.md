@@ -1,3 +1,37 @@
+## [0.1.0] - 2026-04-12
+
+### 🚀 Features
+
+- Restore deleted items in metadata.json
+- Add Makefile and project configuration for build automation
+- Enhance Makefile with comprehensive project setup and build automation
+- Add Makefile target run configurations for various project tasks
+- Add CI workflows for Docker Hub and PyPI publishing
+- Add new catalog items and update existing metadata with associated backups
+- Import new assets into TestCatalog library and update project metadata
+- Initialize test catalog library with metadata and sample assets
+- Add ci-quality target to makefile for conditional QA execution
+- Add detailed documentation for the organizer command in organizer.md
+- Add dynamic_test_items fixture for generating and testing random images
+- Update tags in tags.json and add backup file for versioning
+
+### 💼 Other
+
+- V0.1.0
+
+### 🚜 Refactor
+
+- Update core API logic and test suite while adding new library metadata and test assets. refactored code.
+
+### 🧪 Testing
+
+- Add new test cases and update library catalog with expanded image metadata and backups
+- Update test suite and expand test catalog with new library assets and backups
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
+- Add mypy, types-requests, and types-tqdm to dev dependencies
 ## [0.0.27] - 2026-03-25
 
 ### 🚀 Features
