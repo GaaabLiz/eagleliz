@@ -1,5 +1,7 @@
-name = "eagleliz"
-version = "0.0.27"
-description = "Eagle.cool related utility scripts."
-requires_python = ">=3.12"
-authors = [("Gabliz", "gabliz.dev@gmail.com")]
+# fmt: off
+name = 'eagleliz'
+version = '0.1.0'
+description = 'Eagle.cool related utility scripts.'
+requires_python = '>=3.12'
+authors = [('Gabliz', 'gabliz.dev@gmail.com')]
+# fmt: on

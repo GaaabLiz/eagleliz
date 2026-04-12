@@ -131,7 +131,7 @@ wheels = [
 
 [[package]]
 name = "eagleliz"
-version = "0.0.27"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
