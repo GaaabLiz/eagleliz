@@ -135,17 +135,22 @@ class EagleLocalReader:
         # Check file type
         try:
             detected_type = get_file_type(str(media_file))
-            if detected_type not in self.file_types:
+        except ValueError:
+            # Fallback for types that pylizlib might not yet support but Eagle uses
+            ext = media_file.suffix.lower()
+            if ext == ".md":
+                detected_type = FileType.TEXT
+            elif ext in [".url", ".webloc"]:
+                detected_type = FileType.BOOKMARK
+            else:
                 self.items_skipped.append(
-                    (eagle_item, f"File type not requested: {detected_type.name}")
+                    (eagle_item, f"Unsupported file type: {media_file.suffix}")
                 )
                 return None
-        except ValueError:
-            print(
-                f"DEBUG: Unsupported file type for {media_file.name}: {media_file.suffix}"
-            )
+
+        if self.file_types and detected_type not in self.file_types:
             self.items_skipped.append(
-                (eagle_item, f"Unsupported file type: {media_file.suffix}")
+                (eagle_item, f"File type not requested: {detected_type.name}")
             )
             return None
 
@@ -153,13 +158,8 @@ class EagleLocalReader:
         if self.filter_tags:
             item_tags = metadata_obj.tags if metadata_obj.tags else []
             if not any(tag in item_tags for tag in self.filter_tags):
-                print(
-                    f"DEBUG: Tag mismatch for {media_file.name}: {item_tags} vs {self.filter_tags}"
-                )
                 self.items_skipped.append((eagle_item, "Tag mismatch"))
                 return None
-
-        print(f"DEBUG: Accepted item: {media_file.name} (Type: {detected_type.name})")
 
         # Read base64 content if requested
         if self.include_base64:

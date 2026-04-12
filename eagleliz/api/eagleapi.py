@@ -103,28 +103,15 @@ class EagleAPI(EagleAPIBase):
         except urllib.error.HTTPError as exc:
             error_body = exc.read().decode()
             log_url = mask_token(url, self.token)
-            logger.error(
-                "HTTP error %s for Eagle API at %s. Body: %s",
-                exc.code,
-                log_url,
-                error_body,
-            )
+            logger.error("HTTP error %s for Eagle API at %s. Body: %s", exc.code, log_url, error_body)  # fmt: skip
             raise EagleAPIError(f"HTTP {exc.code} error: {error_body}") from exc
         except urllib.error.URLError as exc:
             log_url = mask_token(url, self.token)
-            logger.error(
-                "Failed to connect to Eagle API at %s. Is Eagle running? Error: %s",
-                log_url,
-                exc,
-            )
+            logger.error("Failed to connect to Eagle API at %s. Is Eagle running? Error: %s", log_url, exc)  # fmt: skip
             raise EagleAPIError(f"Connection error: {exc}") from exc
         except json.JSONDecodeError as exc:
             log_url = mask_token(url, self.token)
-            logger.error(
-                "Failed to parse JSON response from Eagle API at %s. Error: %s",
-                log_url,
-                exc,
-            )
+            logger.error("Failed to parse JSON response from Eagle API at %s. Error: %s", log_url, exc)  # fmt: skip
             raise EagleAPIError(f"JSON parse error: {exc}") from exc
 
     def _read_bytes(
@@ -150,20 +137,11 @@ class EagleAPI(EagleAPIBase):
         except urllib.error.HTTPError as exc:
             error_body = exc.read().decode()
             log_url = mask_token(url, self.token)
-            logger.error(
-                "HTTP error %s fetching Eagle binary response at %s. Body: %s",
-                exc.code,
-                log_url,
-                error_body,
-            )
+            logger.error("HTTP error %s fetching Eagle binary response at %s. Body: %s", exc.code, log_url, error_body)  # fmt: skip
             raise EagleAPIError(f"HTTP {exc.code} error: {error_body}") from exc
         except urllib.error.URLError as exc:
             log_url = mask_token(url, self.token)
-            logger.error(
-                "Failed to connect to Eagle API at %s while fetching bytes. Error: %s",
-                log_url,
-                exc,
-            )
+            logger.error("Failed to connect to Eagle API at %s while fetching bytes. Error: %s", log_url, exc)  # fmt: skip
             raise EagleAPIError(f"Connection error: {exc}") from exc
 
     def get_application_info(self) -> ApplicationInfo:

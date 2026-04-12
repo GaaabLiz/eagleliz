@@ -97,29 +97,16 @@ class AsyncEagleAPI(EagleAPIBase):
                 )
             except httpx.HTTPStatusError as exc:
                 log_url = mask_token(str(exc.request.url), self.token)
-                logger.error(
-                    "HTTP error %s for Eagle API at %s. Body: %s",
-                    exc.response.status_code,
-                    log_url,
-                    exc.response.text,
-                )
+                logger.error("HTTP error %s for Eagle API at %s. Body: %s", exc.response.status_code, log_url, exc.response.text)  # fmt: skip
                 raise EagleAPIError(
                     f"HTTP {exc.response.status_code} error: {exc.response.text}"
                 ) from exc
             except httpx.HTTPError as exc:
-                logger.error(
-                    "Request transport failed for Eagle API endpoint %s: %s",
-                    endpoint,
-                    exc,
-                )
+                logger.error("Request transport failed for Eagle API endpoint %s: %s", endpoint, exc)  # fmt: skip
                 raise EagleAPIError(f"Connection error: {exc}") from exc
             except json.JSONDecodeError as exc:
                 log_url = mask_token(url, self.token)
-                logger.error(
-                    "Failed to parse JSON response from Eagle API at %s. Error: %s",
-                    log_url,
-                    exc,
-                )
+                logger.error("Failed to parse JSON response from Eagle API at %s. Error: %s", log_url, exc)  # fmt: skip
                 raise EagleAPIError(f"JSON parse error: {exc}") from exc
 
     async def _read_bytes(
@@ -141,21 +128,12 @@ class AsyncEagleAPI(EagleAPIBase):
                 return response.content
             except httpx.HTTPStatusError as exc:
                 log_url = mask_token(str(exc.request.url), self.token)
-                logger.error(
-                    "HTTP error %s fetching Eagle binary response at %s. Body: %s",
-                    exc.response.status_code,
-                    log_url,
-                    exc.response.text,
-                )
+                logger.error("HTTP error %s fetching Eagle binary response at %s. Body: %s", exc.response.status_code, log_url, exc.response.text)  # fmt: skip
                 raise EagleAPIError(
                     f"HTTP {exc.response.status_code} error: {exc.response.text}"
                 ) from exc
             except httpx.HTTPError as exc:
-                logger.error(
-                    "Request transport failed for Eagle API binary endpoint %s: %s",
-                    endpoint,
-                    exc,
-                )
+                logger.error("Request transport failed for Eagle API binary endpoint %s: %s", endpoint, exc)  # fmt: skip
                 raise EagleAPIError(f"Connection error: {exc}") from exc
 
     async def get_application_info(self) -> ApplicationInfo:
