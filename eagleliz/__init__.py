@@ -18,3 +18,6 @@ def callback():
     the top-level help text and acts as a grouping for all subcommands.
     """
     pass
+
+from . import organizer, sidegen
+

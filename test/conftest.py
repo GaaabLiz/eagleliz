@@ -47,3 +47,25 @@ def verify_item_in_catalog(item_id, expected_ext):
     ext_lower = expected_ext.lower()
     matching_files = [f for f in img_dir.iterdir() if f.is_file() and f.suffix.lower() == f".{ext_lower}" and not f.name.endswith('_thumbnail.png')]
     assert len(matching_files) > 0, f"No file with extension {expected_ext} found in {img_dir}"
+
+def wait_for_condition(condition_func, timeout=15, interval=0.5):
+    """
+    Polls a condition function until it returns True or timeout is reached.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        if condition_func():
+            return True
+        time.sleep(interval)
+    return False
+
+def wait_for_items(api, keyword=None, tags=None, folders=None, expected_count=1, timeout=15):
+    """
+    Waits for a specific number of items to appear in Eagle.
+    """
+    def check():
+        items = api.get_items(keyword=keyword, tags=tags, folders=folders, limit=max(expected_count, 10))
+        return len(items) >= expected_count
+        
+    return wait_for_condition(check, timeout=timeout)
+
