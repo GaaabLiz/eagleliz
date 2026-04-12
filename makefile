@@ -618,6 +618,17 @@ ci-setup:
 	uv python install $(CI_PYTHON_VERSION)
 	uv sync --all-groups
 
+## ci-quality             – Run CI quality gates; skip tests when CI_RUN_TESTS=0
+.PHONY: ci-quality
+ci-quality:
+	@if [ "$(CI_RUN_TESTS)" = "1" ]; then \
+		echo "CI_RUN_TESTS=1 -> running full qa (including tests)"; \
+		$(MAKE) --no-print-directory qa; \
+	else \
+		echo "CI_RUN_TESTS=0 -> running lint, format-check, and type-check only"; \
+		$(MAKE) --no-print-directory lint format-check type-check; \
+	fi
+
 ## ci-export-config       – Export CI configuration values to $GITHUB_OUTPUT
 .PHONY: ci-export-config
 ci-export-config:

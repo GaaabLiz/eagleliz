@@ -82,6 +82,10 @@ RELEASE_ARTIFACTS ?= dist/*
 # Python version used by CI jobs via uv-managed environments.
 CI_PYTHON_VERSION ?= 3.13
 
+# Enable/disable test execution in the CI workflow quality step.
+# Set to 0 when CI runners cannot access required external infrastructure.
+CI_RUN_TESTS ?= 0
+
 # Enable/disable per-platform asset builds in the release workflow.
 # Set to 0 to skip a platform completely.
 CI_BUILD_LINUX ?= 1
