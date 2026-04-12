@@ -1,0 +1,350 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="help" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="help" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="install" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="install" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="install-all" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="install-all" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="install-dev" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="install-dev" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="install-pyinstaller" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="install-pyinstaller" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="install-inno" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="install-inno" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="gen-project-py" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="gen-project-py" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="lint" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="lint" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="lint-fix" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="lint-fix" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="format" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="format" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="format-check" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="format-check" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="type-check" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="type-check" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="test" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="test" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="test-cov" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="test-cov" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="qa" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="qa" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="build" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="build-uv" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build-uv" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="build-exe" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build-exe" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="build-exe-onefile" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build-exe-onefile" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="build-app" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build-app" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="build-app-onefile" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build-app-onefile" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="installer" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="installer" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="build-installer" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="build-installer" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="docs" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="docs" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="docs-open" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="docs-open" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="clean" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="clean" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="clean-all" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="clean-all" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="clean-build" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="clean-build" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="clean-cache" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="clean-cache" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="clean-docs" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="clean-docs" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="clean-generated" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="clean-generated" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="bump-patch-beta" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="bump-patch-beta" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="bump-patch" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="bump-patch" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="bump-minor" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="bump-minor" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="bump-major" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="bump-major" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-patch-beta" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-patch-beta" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-patch" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-patch" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-minor" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-minor" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-major" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-major" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="tag" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="tag" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-patch-beta-tag" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-patch-beta-tag" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-patch-tag" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-patch-tag" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-minor-tag" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-minor-tag" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="release-major-tag" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="release-major-tag" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-setup" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-setup" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-export-config" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-export-config" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-install-git-cliff" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-install-git-cliff" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-generate-changelog" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-generate-changelog" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-generate-release-notes" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-generate-release-notes" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-commit-changelog" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-commit-changelog" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-build-release-assets" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-build-release-assets" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-publish-pypi" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-publish-pypi" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-release-branch" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-release-branch" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-windows-installer" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-windows-installer" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-release-artifacts" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-release-artifacts" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-print-release-target-branch" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-print-release-target-branch" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-print-windows-installer-enabled" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-print-windows-installer-enabled" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="ci-print-release-artifacts" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+    <makefile filename="$PROJECT_DIR$/Makefile" target="ci-print-release-artifacts" workingDirectory="$PROJECT_DIR$" arguments="">
+      <envs />
+    </makefile>
+    <method v="2" />
+  </configuration>
+</component>
