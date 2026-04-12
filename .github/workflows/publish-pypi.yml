@@ -1,0 +1,58 @@
+name: Publish PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci-config:
+    name: Read CI Config
+    runs-on: ubuntu-latest
+    outputs:
+      enable_pypi_publish: ${{ steps.config.outputs.enable_pypi_publish }}
+      pypi_environment: ${{ steps.config.outputs.pypi_environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Export Config To GitHub Output
+        id: config
+        run: make ci-export-config
+
+  publish:
+    name: Publish To PyPI
+    needs: ci-config
+    if: needs.ci-config.outputs.enable_pypi_publish == '1'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.ci-config.outputs.pypi_environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Setup CI Environment
+        run: make ci-setup
+
+      - name: Build Package
+        run: make build-uv
+
+      - name: Publish Package
+        run: make ci-publish-pypi
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
